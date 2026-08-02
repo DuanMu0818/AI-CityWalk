@@ -28,13 +28,6 @@
 | 📱 **响应式设计** | 适配桌面端和移动端，侧栏 + 地图双面板布局 |
 | ✨ **精美动效** | AI 生成过程中展示等待动画，体验流畅自然 |
 
-## 🎬 效果预览
-
-> 添加你的截图后，删除下面这行替换为实际图片
-
-```
-📸 建议截图：路线生成结果页（地图 + 途经点卡片）
-```
 
 ## 🛠️ 技术栈
 
@@ -63,51 +56,6 @@
 
 打开网页即可使用，无需安装任何东西！
 
----
-
-## 🔧 本地开发
-
-如果你想要自己运行或二次开发：
-
-### 前提条件
-
-- Python 3.11+
-- DeepSeek API Key（[申请](https://platform.deepseek.com/)）
-- 腾讯地图 API Key（[申请](https://lbs.qq.com/)）
-
-### 1. 克隆项目
-
-```bash
-git clone https://github.com/DuanMu0818/AI-CityWalk.git
-cd AI-CityWalk
-```
-
-### 2. 安装依赖
-
-```bash
-cd backend
-pip install -r requirements.txt
-```
-
-### 3. 配置 API Key
-
-在 `backend/` 目录下创建 `.env` 文件：
-
-```env
-DEEPSEEK_API_KEY=sk-你的DeepSeek密钥
-TENCENT_MAP_KEY=你的腾讯地图Key
-```
-
-> ⚠️ **重要**：`.env` 已在 `.gitignore` 中，不会被提交到 GitHub。
-
-### 4. 启动
-
-```bash
-cd backend
-python app.py
-```
-
-浏览器打开 [http://localhost:5000](http://localhost:5000)。
 
 ## 📖 使用指南
 
