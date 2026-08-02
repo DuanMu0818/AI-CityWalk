@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚶 AI CityWalk — 智能城市漫步路线规划</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ============================================================
+    导航栏 — 固定在页面顶部
+    ============================================================ -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-left">
+            <svg class="navbar-logo" width="30" height="30" viewBox="0 0 30 30" fill="none">
+                <circle cx="21" cy="7" r="5" fill="url(#logoGrad)"/>
+                <path d="M21 12 L21 22" stroke="url(#logoGrad)" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="14" y1="17" x2="7" y2="20" stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+                <line x1="14" y1="17" x2="21" y2="20" stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+                <line x1="14" y1="22" x2="7" y2="29" stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+                <line x1="14" y1="22" x2="21" y2="29" stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+                <defs>
+                    <linearGradient id="logoGrad" x1="0" y1="0" x2="28" y2="32">
+                        <stop offset="0%" stop-color="#4A90D9"/>
+                        <stop offset="100%" stop-color="#67C23A"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <h1 class="navbar-title">AI CityWalk</h1>
+            <span class="navbar-city" id="navbarCity"></span>
+        </div>
+        <button class="navbar-history-btn" id="btnOpenHistory" title="查看历史记录">
+            <!-- 历史列表图标 -->
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <rect x="2" y="3" width="14" height="2" rx="1" fill="currentColor"/>
+                <rect x="2" y="8" width="14" height="2" rx="1" fill="currentColor"/>
+                <rect x="2" y="13" width="10" height="2" rx="1" fill="currentColor"/>
+            </svg>
+            <span class="btn-text">历史记录</span>
+        </button>
+    </nav>
+
+    <!-- ============================================================
+    加载等待遮罩层 — 路线生成时显示
+    ============================================================ -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-card">
+            <!-- 侧面走路小人动画 -->
+            <div class="loading-walker-area">
+                <div class="pulse-ring pulse-ring-outer"></div>
+                <div class="pulse-ring pulse-ring-inner"></div>
+                <svg class="walker-svg" width="52" height="44" viewBox="0 0 52 44">
+                    <circle cx="26" cy="8" r="5" fill="#4A90D9"/>
+                    <line x1="26" y1="13" x2="26" y2="26" stroke="#4A90D9" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="26" y1="17" x2="31" y2="21" stroke="#4A90D9" stroke-width="2" stroke-linecap="round" class="arm-front"/>
+                    <line x1="26" y1="17" x2="20" y2="20" stroke="#4A90D9" stroke-width="2" stroke-linecap="round" class="arm-back"/>
+                    <line x1="26" y1="26" x2="32" y2="35" stroke="#4A90D9" stroke-width="2.2" stroke-linecap="round" class="leg-front"/>
+                    <line x1="26" y1="26" x2="19" y2="36" stroke="#4A90D9" stroke-width="2.2" stroke-linecap="round" class="leg-back"/>
+                </svg>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="loading-progress-track">
+                <div class="loading-progress-fill" id="loadingProgressFill"></div>
+            </div>
+
+            <!-- 进度阶段指示 -->
+            <div class="loading-stages" id="loadingStages">
+                <span class="stage" data-stage="ai">
+                    <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+                    AI 思考中
+                </span>
+                <span class="stage" data-stage="geo">
+                    <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+                    查找坐标
+                </span>
+                <span class="stage" data-stage="done">
+                    <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+                    生成完成
+                </span>
+            </div>
+
+            <!-- 轮换文字 -->
+            <p class="loading-text" id="loadingText">正在规划最佳路线...</p>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    主内容区 — 左侧表单 + 右侧地图
+    ============================================================ -->
+    <main class="main-content" id="mainContent">
+        <!-- 左侧：偏好表单区 -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-accent-bar"></div>
+            <div class="sidebar-scroll">
+            <div class="form-container">
+                <h2 class="form-title">规划你的 CityWalk</h2>
+                <p class="form-subtitle">告诉 AI 你的偏好，一键生成专属漫步路线</p>
+
+                <!-- 城市输入 -->
+                <div class="form-group">
+                    <label class="form-label" for="inputCity">
+                        <span class="step-badge">1</span> 选择城市
+                    </label>
+                    <div class="city-input-row">
+                        <input type="text" id="inputCity" class="form-input"
+                               placeholder="输入城市名，如：成都、上海..."
+                               maxlength="20" autocomplete="off">
+                        <button class="btn-locate" id="btnLocate" type="button" title="自动定位到当前城市">
+                            <!-- 定位靶心图标 -->
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.8"/>
+                                <circle cx="9" cy="9" r="3" fill="currentColor" opacity="0.9"/>
+                                <line x1="9" y1="1" x2="9" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <line x1="9" y1="14" x2="9" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <line x1="1" y1="9" x2="4" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <line x1="14" y1="9" x2="17" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <span class="form-hint">点击定位图标自动识别城市，或手动输入</span>
+                </div>
+
+                <!-- 主题风格（单选胶囊） -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="step-badge">2</span> 主题风格
+                        <span class="label-optional">可多选</span>
+                    </label>
+                    <div class="capsule-group" id="themeGroup">
+                        <button class="capsule" data-value="文艺漫步">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><circle cx="6" cy="5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="11" cy="9" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 7.5 L11 6.5 M6 7.5 L8 9.5" stroke="currentColor" stroke-width="1" opacity="0.5"/></svg>
+                            文艺漫步</button>
+                        <button class="capsule" data-value="历史探秘">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><rect x="3" y="2" width="10" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="4.5" y1="5" x2="11.5" y2="5" stroke="currentColor" stroke-width="1"/><line x1="4.5" y1="8" x2="11.5" y2="8" stroke="currentColor" stroke-width="1"/><line x1="4.5" y1="11" x2="8" y2="11" stroke="currentColor" stroke-width="1"/></svg>
+                            历史探秘</button>
+                        <button class="capsule" data-value="自然风光">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><path d="M2 14 Q4 4,8 6 Q12 2,14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 14 Q6 6,8 7" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/></svg>
+                            自然风光</button>
+                        <button class="capsule" data-value="潮流打卡">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><polygon points="8,1 10,5.5 15,6 11.5,9.5 12.5,14.5 8,12 3.5,14.5 4.5,9.5 1,6 6,5.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                            潮流打卡</button>
+                    </div>
+                </div>
+
+                <!-- 时间体力偏好（单选） -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="step-badge">3</span> 时间和体力
+                        <span class="label-optional">选填</span>
+                    </label>
+                    <div class="capsule-group" id="timeEnergyGroup">
+                        <button class="capsule" data-value="半天轻松逛（约3-4小时）">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="4" x2="8" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="8" x2="11" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            半天轻松逛
+                            <span class="capsule-desc">约 3-4 小时</span>
+                        </button>
+                        <button class="capsule" data-value="一整天深度游（约6-8小时）">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><polyline points="8,4 8,8 11,6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            一整天深度游
+                            <span class="capsule-desc">约 6-8 小时</span>
+                        </button>
+                        <button class="capsule" data-value="暴走模式（约8-10小时）">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><polygon points="8,1.5 11,6 13,12 8,14.5 3,12 5,6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="8" y1="6" x2="8" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            暴走模式
+                            <span class="capsule-desc">约 8-10 小时</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 预算偏好（单选） -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="step-badge">4</span> 预算偏好
+                        <span class="label-optional">选填</span>
+                    </label>
+                    <div class="capsule-group" id="budgetGroup">
+                        <button class="capsule" data-value="学生党平价">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><path d="M2 6 L8 3 L14 6 L8 9 L2 6Z" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="3.5" y="6" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+                            学生党平价</button>
+                        <button class="capsule" data-value="舒适小资">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="4" x2="1" y2="4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="14" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M5 7 Q8 5,11 7" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+                            舒适小资</button>
+                        <button class="capsule" data-value="品质享受">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><path d="M4 2 L6 6 L10 3 L12 7 L14 1" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><ellipse cx="8" cy="12" rx="7" ry="2.5" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+                            品质享受</button>
+                        <button class="capsule" data-value="丰俭由人">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2" fill="currentColor" opacity="0.9"/></svg>
+                            丰俭由人</button>
+                    </div>
+                </div>
+
+                <!-- 特殊需求（多选胶囊） -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="step-badge">5</span> 特殊需求
+                        <span class="label-optional">可多选</span>
+                    </label>
+                    <div class="capsule-group" id="specialNeedsGroup">
+                        <button class="capsule multi" data-value="适合拍照">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="4" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="5" cy="6" r="0.8" fill="currentColor" opacity="0.5"/></svg>
+                            适合拍照</button>
+                        <button class="capsule multi" data-value="有咖啡馆休息">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><rect x="3" y="3" width="8" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 5.5 Q14 5.5,14 8 Q14 10,11 10" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="7" y1="2.5" x2="7" y2="3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                            有咖啡馆休息</button>
+                        <button class="capsule multi" data-value="避开人流">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><path d="M2 12 Q4 4,8 6 Q12 2,14 12" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                            避开人流</button>
+                        <button class="capsule multi" data-value="适合亲子">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><circle cx="5" cy="5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="11" cy="4" r="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M5 7.5 L5 13 M11 6 L11 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            适合亲子</button>
+                        <button class="capsule multi" data-value="宠物友好">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><ellipse cx="5" cy="6" rx="2.5" ry="2" fill="none" stroke="currentColor" stroke-width="1.3"/><ellipse cx="11" cy="6" rx="2.5" ry="2" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+                            宠物友好</button>
+                        <button class="capsule multi" data-value="有书店或文创店">
+                            <svg class="capsule-icon" width="16" height="16" viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="3" x2="8" y2="13" stroke="currentColor" stroke-width="1" opacity="0.6"/><line x1="4" y1="6" x2="7" y2="6" stroke="currentColor" stroke-width="1" opacity="0.6"/><line x1="9" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1" opacity="0.6"/></svg>
+                            有书店/文创店</button>
+                    </div>
+                </div>
+
+                <!-- 自由描述 -->
+                <div class="form-group">
+                    <label class="form-label" for="inputDescription">
+                        <span class="step-badge">6</span> 补充描述
+                        <span class="label-optional">选填</span>
+                    </label>
+                    <textarea id="inputDescription" class="form-textarea"
+                              placeholder="说说你的偏好... 比如：想吃地道的本地小吃，喜欢有年代感的老建筑，最好能在途中找个安静的咖啡馆歇脚..."
+                              rows="4" maxlength="300"></textarea>
+                    <div class="char-count-wrap">
+                        <div class="char-count-bar" id="charCountBar"></div>
+                        <span class="char-count" id="charCount">0 / 300</span>
+                    </div>
+                </div>
+
+            </div><!-- /form-container -->
+            </div><!-- /sidebar-scroll -->
+            <!-- 生成按钮区域 — 固定在侧边栏底部 -->
+            <div class="generate-area">
+                    <button class="btn-generate" id="btnGenerate" type="button">
+                        <!-- 路线图标 -->
+                        <svg class="btn-generate-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="4" cy="5" r="2.5" fill="currentColor" opacity="0.9"/>
+                            <circle cx="12" cy="10" r="2.5" fill="currentColor" opacity="0.9"/>
+                            <circle cx="8" cy="16" r="2.5" fill="currentColor" opacity="0.9"/>
+                            <path d="M6 6.5 Q8 8,10.5 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 2"/>
+                            <path d="M10.5 11 Q9 14,8 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 2"/>
+                        </svg>
+                        生成路线
+                    </button>
+                    <p class="generate-hint">只需填写城市即可生成，其余项为可选偏好</p>
+            </div><!-- /generate-area -->
+        </aside>
+
+        <!-- 右侧：地图区域 + 卡片区（弹性分区） -->
+        <div class="content-right">
+        <section class="map-section" id="mapSection">
+            <div class="map-container" id="mapContainer">
+                <div class="map-placeholder" id="mapPlaceholder">
+                    <div class="placeholder-illustration">
+                        <svg width="120" height="100" viewBox="0 0 120 100" fill="none">
+                            <rect x="25" y="30" width="16" height="45" rx="2" fill="#4A90D9" opacity="0.15"/>
+                            <rect x="28" y="34" width="4" height="4" rx="0.5" fill="#4A90D9" opacity="0.3"/>
+                            <rect x="35" y="34" width="4" height="4" rx="0.5" fill="#4A90D9" opacity="0.3"/>
+                            <rect x="28" y="41" width="4" height="4" rx="0.5" fill="#4A90D9" opacity="0.3"/>
+                            <rect x="35" y="41" width="4" height="4" rx="0.5" fill="#4A90D9" opacity="0.3"/>
+                            <rect x="55" y="20" width="12" height="55" rx="2" fill="#4A90D9" opacity="0.2"/>
+                            <rect x="57" y="24" width="3" height="3" rx="0.5" fill="#4A90D9" opacity="0.4"/>
+                            <rect x="62" y="24" width="3" height="3" rx="0.5" fill="#4A90D9" opacity="0.4"/>
+                            <rect x="57" y="31" width="3" height="3" rx="0.5" fill="#4A90D9" opacity="0.4"/>
+                            <rect x="62" y="31" width="3" height="3" rx="0.5" fill="#4A90D9" opacity="0.4"/>
+                            <rect x="75" y="40" width="18" height="35" rx="2" fill="#67C23A" opacity="0.12"/>
+                            <rect x="78" y="44" width="4" height="4" rx="0.5" fill="#67C23A" opacity="0.3"/>
+                            <circle cx="15" cy="62" r="5" fill="#4A90D9" stroke="#fff" stroke-width="2"/>
+                            <text x="15" y="65" text-anchor="middle" fill="#fff" font-size="7" font-weight="700">A</text>
+                            <path d="M20 62 Q40 50,55 45 Q65 42,70 48" fill="none" stroke="#4A90D9" stroke-width="2.5" stroke-dasharray="6 3" stroke-linecap="round" opacity="0.6"/>
+                            <circle cx="55" cy="44" r="5" fill="#E6A23C" stroke="#fff" stroke-width="2"/>
+                            <text x="55" y="47" text-anchor="middle" fill="#fff" font-size="7" font-weight="700">2</text>
+                            <circle cx="70" cy="48" r="5" fill="#67C23A" stroke="#fff" stroke-width="2"/>
+                            <text x="70" y="51" text-anchor="middle" fill="#fff" font-size="7" font-weight="700">3</text>
+                            <circle cx="95" cy="55" r="4" fill="#4A90D9" opacity="0.8"/>
+                            <line x1="95" y1="59" x2="95" y2="68" stroke="#4A90D9" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                            <line x1="95" y1="62" x2="90" y2="65" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                            <line x1="95" y1="62" x2="100" y2="65" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                            <line x1="95" y1="68" x2="91" y2="75" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                            <line x1="95" y1="68" x2="99" y2="75" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+                            <circle cx="100" cy="72" r="6" fill="#67C23A" opacity="0.2"/>
+                            <circle cx="110" cy="78" r="5" fill="#67C23A" opacity="0.15"/>
+                        </svg>
+                    </div>
+                    <h3 class="placeholder-title">探索城市的漫步路线</h3>
+                    <p class="placeholder-desc">在左侧输入城市名称，AI 将为你生成一条专属 CityWalk 路线 <span style="font-size:18px;">👈</span></p>
+                    <div class="placeholder-features">
+                        <span class="placeholder-feat">
+                            <svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" fill="none" stroke="#4A90D9" stroke-width="1.5"/><polyline points="5,9 8,12 13,6" fill="none" stroke="#4A90D9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            智能规划
+                        </span>
+                        <span class="placeholder-feat">
+                            <svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" fill="none" stroke="#67C23A" stroke-width="1.5"/><polyline points="5,9 8,12 13,6" fill="none" stroke="#67C23A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            地图可视化
+                        </span>
+                        <span class="placeholder-feat">
+                            <svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" fill="none" stroke="#E6A23C" stroke-width="1.5"/><polyline points="5,9 8,12 13,6" fill="none" stroke="#E6A23C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            历史回顾
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 路线详情卡片区 — 在右侧区域底部 -->
+        <section class="cards-section" id="cardsSection">
+            <div class="cards-section-inner">
+                <div class="cards-header">
+                    <div class="cards-header-left">
+                        <h2 class="cards-title" id="routeNameDisplay">路线详情</h2>
+                        <p class="cards-summary" id="routeSummaryDisplay"></p>
+                    </div>
+                    <div class="cards-header-actions">
+                        <button class="btn-share" id="btnShare" title="复制路线到剪贴板">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4" y="2" width="8" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M2 4v8a1 1 0 001 1h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                            分享
+                        </button>
+                        <div class="cards-stats" id="cardsStats">
+                            <span class="stat-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="5" cy="4" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="11" cy="10" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="13" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+                                <span id="statWaypoints">0 个途经点</span>
+                            </span>
+                            <span class="stat-item">
+                                <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="4" x2="8" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="8" x2="11" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                <span id="statDuration">约 4-6 小时</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="cards-scroll-wrap">
+                    <button class="cards-scroll-btn cards-scroll-left" id="btnScrollLeft" aria-label="向左滚动">
+                        <svg width="18" height="18" viewBox="0 0 18 18"><polyline points="11,3 5,9 11,15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <div class="cards-container" id="cardsContainer"></div>
+                    <button class="cards-scroll-btn cards-scroll-right" id="btnScrollRight" aria-label="向右滚动">
+                        <svg width="18" height="18" viewBox="0 0 18 18"><polyline points="7,3 13,9 7,15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+        </div><!-- /content-right -->
+    </main>
+
+    <!-- ============================================================
+    自定义确认弹窗
+    ============================================================ -->
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-dialog">
+            <div class="confirm-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="#E6A23C" stroke-width="2"/>
+                    <line x1="12" y1="7" x2="12" y2="13" stroke="#E6A23C" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="12" cy="16.5" r="1.2" fill="#E6A23C"/>
+                </svg>
+            </div>
+            <p class="confirm-message" id="confirmMessage">确定要删除这条路线吗？</p>
+            <div class="confirm-actions">
+                <button class="confirm-btn confirm-btn-cancel" id="btnConfirmCancel">取消</button>
+                <button class="confirm-btn confirm-btn-danger" id="btnConfirmOk">确定删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    历史记录抽屉 — 从右侧滑入
+    ============================================================ -->
+    <div class="drawer-mask" id="drawerMask"></div>
+    <div class="drawer" id="historyDrawer">
+        <div class="drawer-header">
+            <h3 class="drawer-title">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect x="3" y="3" width="14" height="2" rx="1" fill="currentColor"/>
+                    <rect x="3" y="9" width="14" height="2" rx="1" fill="currentColor"/>
+                    <rect x="3" y="15" width="10" height="2" rx="1" fill="currentColor"/>
+                </svg>
+                历史记录
+            </h3>
+            <button class="drawer-close" id="btnCloseDrawer">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <line x1="5" y1="5" x2="15" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <line x1="15" y1="5" x2="5" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+        <!-- 搜索框 -->
+        <div class="drawer-search" id="drawerSearch">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <input type="text" class="drawer-search-input" id="inputSearchHistory" placeholder="搜索城市、主题或路线名...">
+        </div>
+        <div class="drawer-body" id="drawerBody">
+            <!-- 加载中 -->
+            <div class="drawer-loading" id="drawerLoading">
+                <p>加载中...</p>
+            </div>
+            <!-- 空状态 -->
+            <div class="drawer-empty" id="drawerEmpty" style="display: none;">
+                <svg class="empty-illustration" width="64" height="64" viewBox="0 0 64 64" fill="none">
+                    <rect x="12" y="16" width="40" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"/>
+                    <line x1="12" y1="28" x2="52" y2="28" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+                    <line x1="12" y1="36" x2="44" y2="36" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+                    <line x1="12" y1="44" x2="36" y2="44" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+                    <circle cx="32" cy="6" r="4" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
+                    <line x1="32" y1="10" x2="32" y2="16" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
+                </svg>
+                <p class="empty-text">暂无历史路线</p>
+                <p class="empty-sub">生成你的第一条 CityWalk 路线吧</p>
+            </div>
+            <!-- 历史列表 -->
+            <div class="drawer-list" id="drawerList"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    Toast 消息提示
+    ============================================================ -->
+    <div class="toast" id="toast">
+        <span class="toast-icon" id="toastIcon"></span>
+        <span class="toast-text" id="toastText"></span>
+    </div>
+
+    <!-- ============================================================
+    JavaScript 脚本 — 按模块加载
+    ============================================================ -->
+    <script src="js/api.js"></script>
+    <script src="js/form.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/history.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
