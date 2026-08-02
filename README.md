@@ -1,10 +1,6 @@
 # 🚶 AI CityWalk — 智能城市漫步路线规划
 
 <p align="center">
-  <img src="frontend/assets/logo.svg" alt="AI CityWalk Logo" width="120" />
-</p>
-
-<p align="center">
   <strong>用自然语言描述你的偏好，AI 为你生成一条主题鲜明、空间合理的城市漫步路线</strong>
 </p>
 
@@ -64,87 +60,6 @@
 3. **设置偏好** — 可用时间、体力等级、预算范围
 4. **自由描述**（可选）— 用自然语言补充特殊需求，如"想去本地人爱去的店"
 5. **点击生成** — AI 为你规划路线并在地图上展示
-
-## 📁 项目结构
-
-```
-AI-CityWalk/
-├── backend/                    # 后端代码
-│   ├── app.py                  # Flask 主应用（5 个 API 端点 + 静态文件服务）
-│   ├── config.py               # 配置管理（环境变量读取 + 校验）
-│   ├── requirements.txt        # Python 依赖清单
-│   ├── services/
-│   │   ├── ai_service.py       # DeepSeek AI 路线生成服务
-│   │   ├── geocode_service.py  # 腾讯地图地理编码 + POI 搜索
-│   │   └── db_service.py       # SQLite 数据库 CRUD 操作
-│   └── .env                    # API Key 配置（不提交到 Git）
-├── frontend/                   # 前端代码
-│   ├── index.html              # 主页面（导航栏 + 表单侧栏 + 地图区 + 卡片区）
-│   ├── css/
-│   │   └── style.css           # 完整样式（设计系统变量 + 组件 + 动画 + 响应式）
-│   ├── js/
-│   │   ├── api.js              # API 调用封装
-│   │   ├── form.js             # 表单交互（胶囊按钮、字数统计、验证）
-│   │   ├── map.js              # 腾讯地图集成（标记、折线、信息窗、自适应视野）
-│   │   ├── history.js          # 历史记录面板（侧滑抽屉）
-│   │   └── app.js              # 主控制器（表单 → API → 地图 → 卡片全流程）
-│   └── assets/                 # 静态资源
-├── docx/                       # 项目规范文档
-│   ├── requirements.md         # 功能需求规格书
-│   ├── tech-architecture.md    # 技术架构设计
-│   ├── design-spec.md          # UI/UX 设计规范
-│   ├── api-design.md           # API 接口设计
-│   └── dev-steps.md            # 开发执行步骤
-├── dev-log/                    # 开发日志
-├── DEPLOY.md                   # 部署指南（Render / Railway / VPS）
-├── CLAUDE.md                   # Claude AI 项目指引
-└── README.md                   # 本文件
-```
-
-## 🔌 API 端点
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| `GET` | `/api/config` | 获取前端配置（地图 Key 等） |
-| `POST` | `/api/generate` | 提交偏好，生成 AI 路线 |
-| `GET` | `/api/history` | 获取历史路线列表 |
-| `GET` | `/api/history/<id>` | 获取单条路线详情 |
-| `DELETE` | `/api/history/<id>` | 删除历史路线 |
-
-详细说明见 [API 接口设计文档](docx/api-design.md)。
-
-## 🚢 部署
-
-支持多种部署方式，详见 [DEPLOY.md](DEPLOY.md)：
-
-| 平台 | 费用 | 难度 |
-|------|------|------|
-| [Render.com](https://render.com) | 免费额度 | ⭐ 简单 |
-| [Railway.app](https://railway.app) | 免费额度 | ⭐ 简单 |
-| 自有 VPS | 服务器费用 | ⭐⭐⭐ 中等 |
-
-## 📚 开发文档
-
-| 文档 | 说明 |
-|------|------|
-| [功能需求规格书](docx/requirements.md) | 完整的功能需求定义 |
-| [技术架构设计](docx/tech-architecture.md) | 系统架构、数据流、技术选型 |
-| [UI/UX 设计规范](docx/design-spec.md) | 视觉设计、布局、组件、动效 |
-| [API 接口设计](docx/api-design.md) | 后端 API 端点定义 |
-| [开发执行步骤](docx/dev-steps.md) | 分阶段开发计划和验收标准 |
-| [开发日志](dev-log/) | 每日开发记录 |
-
-## 🗺️ 路线图
-
-- [x] 项目规划 + 文档搭建
-- [x] 后端基础（Flask + SQLite）
-- [x] AI 路线生成 + 地理编码
-- [x] 前端页面开发
-- [x] 三城联调测试（成都 / 北京 / 上海）
-- [ ] 浏览器端交互测试 + 体验优化
-- [ ] 移动端深度适配
-- [ ] 路线评分与反馈机制
-- [ ] 多日路线规划支持
 
 ## 🤝 贡献
 
