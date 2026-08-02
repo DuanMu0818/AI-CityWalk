@@ -48,7 +48,7 @@
 
 ## 🚀 在线体验
 
-👉 **直接访问**：**[ai-citywalk-production.up.railway.app]**（部署后替换为实际地址）
+👉 **直接访问**：**[ai-citywalk-production.up.railway.app](https://ai-citywalk-production.up.railway.app)**
 
 打开网页即可使用，无需安装任何东西！
 
