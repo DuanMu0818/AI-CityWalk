@@ -16,7 +16,7 @@ class Config:
     # DeepSeek AI 配置
     DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
     DEEPSEEK_BASE_URL = "https://api.deepseek.com"
-    DEEPSEEK_MODEL = "deepseek-chat"  # DeepSeek 对话模型
+    DEEPSEEK_MODEL = "deepseek-v4-flash"  # DeepSeek V4 Flash 通用对话模型（非思考模式）
 
     # 腾讯地图配置（同一个 Key 同时用于前端 JS API 和后端 Web 服务 API）
     TENCENT_MAP_KEY = os.getenv("TENCENT_MAP_KEY", "")
