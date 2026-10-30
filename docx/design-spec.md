@@ -7,6 +7,8 @@
 | 用途 | 颜色值 | 说明 |
 |------|--------|------|
 | 主色 | `#4A90D9` | 清新蓝，用于按钮、链接、地图折线、标记点 |
+| 品牌深蓝 | `#0B1F3A` | 品牌标记底色、导航标题渐变起点 |
+| 电光蓝 | `#2E8BFF` | 天际线轨迹、光点、进度条、当前步骤 |
 | 辅助色-绿 | `#67C23A` | 生机绿，用于标记点默认状态 |
 | 辅助色-橙 | `#E6A23C` | 暖橙，用于高亮、选中状态 |
 | 背景色 | `#F7F9FC` | 淡灰白，页面整体背景 |
@@ -194,64 +196,48 @@ font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", 
 
 ## 4. 等待动画设计
 
+![品牌标记与加载动画改版](../design-preview/brand-refresh.png)
+
 ### 4.1 遮罩层
 - 全屏固定定位，`z-index: 9999`
-- 背景 `rgba(255, 255, 255, 0.7)`
-- `backdrop-filter: blur(8px)` 毛玻璃效果
+- 底色 `rgba(246, 249, 253, 0.82)`，叠加中心径向电光蓝微光（`52% 46% at 50% 34%`）
+- `backdrop-filter: blur(18px) saturate(115%)` 毛玻璃效果
 
 ### 4.2 动画卡片
-- 居中，白色背景，圆角 16px
-- 宽度 320px，阴影
-- 内部包含动画元素
+- 居中，白色渐变背景，圆角 22px，宽 `min(400px, calc(100vw - 40px))`
+- 内边距 34px / 36px / 26px，元素间距 18px，双层柔和阴影
+- 入场：`translateY(8px) scale(0.99)` → `0 / 1`，0.45s `cubic-bezier(0.22, 1, 0.36, 1)`
 
-### 4.3 CSS 动画
+### 4.3 视觉主体（品牌标记）
+- 104px 深蓝圆角牌（`#173F70 → #061221` 对角渐变 + 左上柔光）
+- 白色几何线条天际线（描边 1.5），地平线 0.42 透明度
+- 电光蓝 `#2E8BFF` 虚线漫步轨迹 + 终点光点，代表"城市 + 行走"
 
-**步行小人弹跳**：
+### 4.4 CSS / SMIL 动画
 ```css
-@keyframes walkBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
+.mark-skyline   { animation: markRise .85s cubic-bezier(.22,1,.36,1); } /* 城市升起 */
+.mark-route     { animation: routeMarch 2.6s linear infinite; }        /* 虚线行进 */
+.mark-terminal-halo { animation: terminalPulse 2.6s ease-out infinite; } /* 终点脉冲 */
+.visual-halo    { animation: haloBreathe 4.8s ease-in-out infinite; }  /* 光晕呼吸 */
+.stage.active .stage-node::after { animation: nodePing 2s cubic-bezier(0,0,.2,1) infinite; }
 ```
+- 轨迹光点使用 SMIL `animateMotion`（4.4s 循环）沿同一路径行进
 
-**路径虚线延伸**：
-```css
-@keyframes drawPath {
-  from { stroke-dashoffset: 200; }
-  to { stroke-dashoffset: 0; }
-}
-```
+### 4.5 进度与步骤
+- 进度条高 3px，`#1B4F8F → #2E8BFF → #79C0FF` 渐变，端点带光晕
+- 三步节点（理解偏好 / 匹配地点 / 生成路线）由 JS 依次切换 `.active` / `.done`
+- 当前节点：电光蓝实心 + 4px 光环；已完成节点：深蓝实心
 
-**脉冲光环**：
-```css
-@keyframes pulse {
-  0% { transform: scale(0.8); opacity: 0.8; }
-  100% { transform: scale(2); opacity: 0; }
-}
-```
-
-**进度点流动**：
-```css
-@keyframes dotFlow {
-  0%, 100% { opacity: 0.3; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.2); }
-}
-/* 5个点依次 delay: 0s, 0.2s, 0.4s, 0.6s, 0.8s */
-```
-
-### 4.4 文字轮换
-- JS `setInterval` 每 3 秒切换
-- 切换时 `opacity` 渐隐渐显过渡（0.3s）
-- 显示城市名时动态替换 `{城市}`
-
-### 4.5 退出动画
+### 4.6 退出动画
 ```css
 .loading-overlay.hide {
   opacity: 0;
-  transform: scale(0.95);
-  transition: all 0.3s ease;
+  transition: opacity 0.22s ease;
 }
 ```
+
+### 4.7 无障碍
+- `prefers-reduced-motion: reduce` 下关闭循环动画，隐藏轨迹光点
 
 ---
 
@@ -280,9 +266,10 @@ font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", 
 | 卡片 hover | 阴影 + 上浮 | 0.2s |
 | 卡片入场 | opacity 0→1 + translateY | 0.4s |
 | 历史抽屉 | translateX 滑入/滑出 | 0.3s |
-| 等待遮罩 | opacity 渐显/渐隐 | 0.3s |
-| 等待小人 | 上下弹跳循环 | 0.8s |
-| 等待路径 | 虚线延伸 | 2s |
-| 等待光环 | 扩散渐隐循环 | 1.5s |
-| 等待进度点 | 依次亮起循环 | 1s |
+| 等待遮罩 | opacity 渐显/渐隐 | 0.32s |
+| 等待天际线 | 城市自下而上浮现 | 0.85s |
+| 等待轨迹 | 虚线流动 + 光点行进 | 2.6s / 4.4s |
+| 等待终点光点 | 脉冲扩散 | 2.6s |
+| 等待光晕 | 呼吸缩放 | 4.8s |
+| 等待步骤节点 | 依次点亮 | 2s |
 | 标记高亮 | 颜色 + 放大 | 0.3s |

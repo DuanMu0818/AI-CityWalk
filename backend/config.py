@@ -1,41 +1,33 @@
-"""
-项目配置管理模块
-从 .env 文件读取敏感配置（API Key 等），提供统一的配置入口
-"""
+from __future__ import annotations
 
 import os
+from typing import List
+
 from dotenv import load_dotenv
 
-# 加载 .env 文件（使用脚本所在目录的绝对路径，避免 CWD 变化时找不到）
-load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
+BASE_DIR: str = os.path.dirname(__file__)
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 
 class Config:
-    """应用配置类，集中管理所有配置项"""
+    DEEPSEEK_API_KEY: str = os.getenv("DEEPSEEK_API_KEY", "")
+    DEEPSEEK_BASE_URL: str = "https://api.deepseek.com"
+    DEEPSEEK_MODEL: str = "deepseek-v4-flash"
 
-    # DeepSeek AI 配置
-    DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
-    DEEPSEEK_BASE_URL = "https://api.deepseek.com"
-    DEEPSEEK_MODEL = "deepseek-v4-flash"  # DeepSeek V4 Flash 通用对话模型（非思考模式）
+    # 前端 JS API 和后端 Web 服务共用同一个 Key
+    TENCENT_MAP_KEY: str = os.getenv("TENCENT_MAP_KEY", "")
 
-    # 腾讯地图配置（同一个 Key 同时用于前端 JS API 和后端 Web 服务 API）
-    TENCENT_MAP_KEY = os.getenv("TENCENT_MAP_KEY", "")
+    TENCENT_GEOCODE_URL: str = "https://apis.map.qq.com/ws/geocoder/v1/"
+    TENCENT_POI_SEARCH_URL: str = "https://apis.map.qq.com/ws/place/v1/search"
+    TENCENT_IP_LOCATION_URL: str = "https://apis.map.qq.com/ws/location/v1/ip"
 
-    # 腾讯地图 API 端点
-    TENCENT_GEOCODE_URL = "https://apis.map.qq.com/ws/geocoder/v1/"
-    TENCENT_POI_SEARCH_URL = "https://apis.map.qq.com/ws/place/v1/search"
-    TENCENT_IP_LOCATION_URL = "https://apis.map.qq.com/ws/location/v1/ip"
+    DATABASE_PATH: str = os.getenv("DATABASE_PATH", os.path.join(BASE_DIR, "citywalk.db"))
 
-    # 数据库配置
-    DATABASE_PATH = os.getenv("DATABASE_PATH", os.path.join(os.path.dirname(__file__), "citywalk.db"))
-
-    # Flask 配置
-    DEBUG = False  # 关闭 debug 模式
+    DEBUG: bool = False
 
     @classmethod
-    def validate(cls):
-        """验证必要的配置是否完整，返回缺失的 Key 列表"""
-        missing = []
+    def validate(cls) -> List[str]:
+        missing: List[str] = []
         if not cls.DEEPSEEK_API_KEY:
             missing.append("DEEPSEEK_API_KEY")
         if not cls.TENCENT_MAP_KEY:

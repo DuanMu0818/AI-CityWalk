@@ -2,7 +2,7 @@
 
 ## 基础信息
 
-- **基础 URL**：`http://localhost:5000`
+- **本地 URL**：`http://localhost:5000`
 - **数据格式**：JSON
 - **编码**：UTF-8
 - **跨域**：通过 Flask-CORS 允许所有来源
@@ -58,12 +58,12 @@ Content-Type: application/json
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| city | string | ✅ | 城市名称 |
-| theme | string | ❌ | 主题风格 |
-| time_energy | string | ❌ | 时间/体力偏好 |
-| budget | string | ❌ | 预算偏好 |
-| special_needs | string[] | ❌ | 特殊需求数组 |
-| description | string | ❌ | 自由描述 |
+| city | string | 是 | 城市名称 |
+| theme | string | 否 | 主题风格 |
+| time_energy | string | 否 | 时间/体力偏好 |
+| budget | string | 否 | 预算偏好 |
+| special_needs | string[] | 否 | 特殊需求数组 |
+| description | string | 否 | 自由描述 |
 
 **成功响应** `200 OK`：
 ```json
@@ -237,13 +237,3 @@ Content-Type: application/json
 ```
 
 ---
-
-## 6. 错误码汇总
-
-| HTTP 状态码 | 含义 | 场景 |
-|-------------|------|------|
-| 200 | 成功 | 所有正常请求 |
-| 400 | 请求参数错误 | 城市为空、JSON 格式错误 |
-| 404 | 资源不存在 | 查询/删除不存在的路线 ID |
-| 500 | 服务器内部错误 | AI 调用失败、地理编码异常、数据库错误 |
-| 504 | 网关超时 | DeepSeek API 响应超时（>60s） |

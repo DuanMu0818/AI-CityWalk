@@ -1,11 +1,4 @@
-/**
- * 主逻辑模块 v2 — AI CityWalk 应用控制器
- * 串联表单、API、地图、卡片、历史记录、Toast等模块
- * 视觉升级：SVG Toast 图标 + 加载进度阶段 + 卡片色彩系统 + 统计概览
- */
-
 const App = (() => {
-    // 类别→颜色映射（用于卡片顶部色条和标签）
     const CATEGORY_COLORS = {
         '美食': '#E67E22',
         '历史街区': '#8B6914',
@@ -19,7 +12,6 @@ const App = (() => {
         '购物': '#D4A017',
     };
 
-    // 类别→CSS 类名后缀
     const CATEGORY_CLASS_MAP = {
         '美食': 'cat-美食',
         '历史街区': 'cat-历史街区',
@@ -33,31 +25,21 @@ const App = (() => {
         '购物': 'cat-购物',
     };
 
-    // 应用状态
     let currentRouteData = null;
     let loadingTimer = null;
     let isLoading = false;
     let isInitialized = false;
     let lastFormData = null;
-    let userCoords = null;  // 用户当前坐标
+    let userCoords = null;
 
-    /**
-     * 获取类别对应的颜色
-     */
     function getCategoryColor(category) {
         return CATEGORY_COLORS[category] || '#4A90D9';
     }
 
-    /**
-     * 获取类别对应的 CSS 类名
-     */
     function getCategoryClass(category) {
         return CATEGORY_CLASS_MAP[category] || '';
     }
 
-    /**
-     * 应用初始化入口
-     */
     async function init() {
         if (isInitialized) return;
 
@@ -67,24 +49,19 @@ const App = (() => {
             History.init(loadHistoryRoute);
             document.getElementById('btnGenerate').addEventListener('click', handleGenerate);
 
-            // 分享按钮
             const btnShare = document.getElementById('btnShare');
             if (btnShare) btnShare.addEventListener('click', shareRoute);
 
-            // 城市输入变化时更新导航栏
             document.getElementById('inputCity').addEventListener('input', (e) => {
                 const city = e.target.value.trim();
                 if (city.length >= 2) setNavbarCity(city);
             });
 
-            // 键盘快捷键
             document.addEventListener('keydown', (e) => {
-                // Ctrl+Enter → 生成路线
                 if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                     e.preventDefault();
                     document.getElementById('btnGenerate').click();
                 }
-                // Ctrl+H → 打开/关闭历史记录
                 if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
                     e.preventDefault();
                     if (History.isOpen()) {
@@ -95,10 +72,8 @@ const App = (() => {
                 }
             });
 
-            // 初始化卡片滚动按钮
             initCardScrollButtons();
 
-            // 初始化确认弹窗
             initConfirmDialog();
 
             await MapModule.init();
@@ -123,9 +98,6 @@ const App = (() => {
         }
     }
 
-    /**
-     * 检测用户位置（GPS 优先，IP 兜底）
-     */
     async function detectLocation() {
         if (navigator.geolocation) {
             try {
@@ -163,9 +135,6 @@ const App = (() => {
         throw new Error('无法获取位置信息');
     }
 
-    /**
-     * 处理「生成路线」按钮点击
-     */
     async function handleGenerate() {
         if (isLoading) return;
 
@@ -177,7 +146,6 @@ const App = (() => {
             return;
         }
 
-        // 保存表单数据 + 附带用户坐标
         lastFormData = { ...formData };
         if (userCoords) {
             formData.user_lat = userCoords.lat;
@@ -201,7 +169,7 @@ const App = (() => {
         } catch (err) {
             hideLoading();
             isLoading = false;
-            Form.setLoading(false);  // 先重置按钮状态
+            Form.setLoading(false);
             showToast(`路线生成失败，请重试`, 'error');
             const btn = document.getElementById('btnGenerate');
             if (btn) {
@@ -212,11 +180,6 @@ const App = (() => {
         }
     }
 
-    /**
-     * 显示路线数据（地图 + 卡片）
-     * @param {object} routeData - 路线数据
-     * @param {string} mode - 'walking' | 'flexible'
-     */
     function displayRoute(routeData) {
         currentRouteData = routeData;
         const waypoints = routeData.waypoints || [];
@@ -224,9 +187,6 @@ const App = (() => {
         renderCards(routeData);
     }
 
-    /**
-     * 渲染路线详情卡片区 v2 — 类别色彩 + 统计概览
-     */
     function renderCards(routeData) {
         const cardsSection = document.getElementById('cardsSection');
         const routeNameDisplay = document.getElementById('routeNameDisplay');
@@ -235,7 +195,6 @@ const App = (() => {
 
         cardsSection.classList.add('visible');
 
-        // 标题
         let title = routeData.route_name || 'CityWalk 路线';
         if (routeData.area) title += ` · ${routeData.area}`;
         routeNameDisplay.textContent = title;
@@ -243,14 +202,12 @@ const App = (() => {
 
         const waypoints = routeData.waypoints || [];
 
-        // 统计
         const totalMinutes = waypoints.reduce((sum, wp) => sum + (wp.stay_minutes || 30), 0);
         const totalHours = Math.round(totalMinutes / 60 * 10) / 10;
         const distKm = routeData.walking_distance_km || '—';
         document.getElementById('statWaypoints').textContent = `${waypoints.length} 个途经点`;
         document.getElementById('statDuration').textContent = `约 ${totalHours} 小时 · ${distKm}km`;
 
-        // 渲染卡片
         cardsContainer.innerHTML = waypoints.map((wp, i) => {
             const animDelay = i * 0.08;
             const catClass = getCategoryClass(wp.category);
@@ -275,12 +232,10 @@ const App = (() => {
             `;
         }).join('');
 
-        // 动态设置卡片顶部色条颜色
         cardsContainer.querySelectorAll('.route-card').forEach((card, i) => {
             const wp = waypoints[i];
             if (wp && wp.category) {
                 card.style.setProperty('--cat-color', getCategoryColor(wp.category));
-                // 使用 CSS 自定义属性覆盖 ::before 背景
                 const style = document.createElement('style');
                 const color = getCategoryColor(wp.category);
                 style.textContent = `.route-card[data-index="${i}"]::before { background: ${color}; }`;
@@ -288,17 +243,14 @@ const App = (() => {
             }
         });
 
-        // 绑定卡片点击事件（含跳过和周边）
         cardsContainer.querySelectorAll('.route-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                // 跳过按钮
                 if (e.target.closest('[data-action="skip"]')) {
                     e.stopPropagation();
                     const idx = parseInt(e.target.closest('[data-action="skip"]').dataset.index);
                     skipWaypoint(idx);
                     return;
                 }
-                // 正常点击 — 高亮联动
                 const index = parseInt(card.dataset.index);
                 cardsContainer.querySelectorAll('.route-card').forEach(c => c.classList.remove('active'));
                 card.classList.add('active');
@@ -306,18 +258,13 @@ const App = (() => {
             });
         });
 
-        // 更新滚动按钮可见性（无需滚动页面，地图卡片已同屏）
         updateScrollButtons(cardsContainer);
 
-        // 默认高亮第一张卡片
         if (cardsContainer.firstElementChild) {
             cardsContainer.firstElementChild.classList.add('active');
         }
     }
 
-    /**
-     * 初始化卡片滚动按钮
-     */
     function initCardScrollButtons() {
         const container = document.getElementById('cardsContainer');
         const btnLeft = document.getElementById('btnScrollLeft');
@@ -336,9 +283,6 @@ const App = (() => {
         container.addEventListener('scroll', () => updateScrollButtons(container));
     }
 
-    /**
-     * 更新滚动按钮的显示/隐藏状态
-     */
     function updateScrollButtons(container) {
         const btnLeft = document.getElementById('btnScrollLeft');
         const btnRight = document.getElementById('btnScrollRight');
@@ -353,29 +297,20 @@ const App = (() => {
         btnRight.style.pointerEvents = canScrollRight ? 'auto' : 'none';
     }
 
-    /**
-     * 地图标记点击回调 — 联动卡片高亮
-     */
     function onMapMarkerClick(index) {
         const cardsContainer = document.getElementById('cardsContainer');
         if (!cardsContainer) return;
 
-        // 取消所有高亮
         cardsContainer.querySelectorAll('.route-card').forEach(c => c.classList.remove('active'));
 
-        // 高亮对应卡片并滚动到可见位置
         const targetCard = cardsContainer.querySelector(`[data-index="${index}"]`);
         if (targetCard) {
             targetCard.classList.add('active');
-            // 平滑滚动到该卡片
             targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             console.log('[App] 卡片联动: #' + (index + 1));
         }
     }
 
-    /**
-     * 加载历史路线
-     */
     function loadHistoryRoute(routeData) {
         if (!routeData || !routeData.waypoints) {
             showToast('路线数据无效', 'error');
@@ -388,9 +323,6 @@ const App = (() => {
         showToast('路线已加载', 'success');
     }
 
-    /**
-     * 处理定位按钮点击
-     */
     async function handleLocate() {
         if (!navigator.geolocation) {
             showToast('您的浏览器不支持定位功能', 'error');
@@ -429,9 +361,6 @@ const App = (() => {
         }
     }
 
-    /**
-     * 显示加载等待动画 v2 — 带进度阶段
-     */
     function showLoading() {
         const overlay = document.getElementById('loadingOverlay');
         overlay.classList.add('show');
@@ -446,27 +375,22 @@ const App = (() => {
             progressFill.style.width = '90%';
         }
 
-        // 三个阶段的文字依次出现
         const stages = document.querySelectorAll('.loading-stages .stage');
         stages.forEach(s => s.classList.remove('active', 'done'));
         const textEl = document.getElementById('loadingText');
 
-        // 阶段 1: AI 分析
-        setTimeout(() => { stages[0]?.classList.add('active'); textEl.textContent = 'AI 正在分析偏好...'; }, 300);
-        // 阶段 2: 生成路线
+        setTimeout(() => { stages[0]?.classList.add('active'); textEl.textContent = '正在理解你的偏好...'; }, 260);
         setTimeout(() => {
             stages[0]?.classList.replace('active', 'done');
             stages[1]?.classList.add('active');
-            textEl.textContent = '正在生成路线...';
-        }, 2000);
-        // 阶段 3: 查找坐标 → 保持在这个状态直到完成
+            textEl.textContent = '正在匹配城市地点与坐标...';
+        }, 2600);
         setTimeout(() => {
             stages[1]?.classList.replace('active', 'done');
             stages[2]?.classList.add('active');
-            textEl.textContent = '正在查找坐标...';
-        }, 5000);
+            textEl.textContent = '正在生成最优漫步路线...';
+        }, 6000);
 
-        // 文字持续轮换（8 秒后开始，避免太早切换）
         const tips = ['马上就好', '正在优化路线', '为你精选最佳地点', '稍等片刻'];
         let ti = 0;
         loadingTimer = setInterval(() => {
@@ -477,9 +401,6 @@ const App = (() => {
         }, 4000);
     }
 
-    /**
-     * 隐藏加载等待动画 v2
-     */
     function hideLoading() {
         if (loadingTimer) { clearInterval(loadingTimer); loadingTimer = null; }
 
@@ -487,13 +408,12 @@ const App = (() => {
         if (progressFill) {
             progressFill.style.transition = 'width 0.4s ease';
             progressFill.style.width = '100%';
-            // 确保下次从 0 开始
             setTimeout(() => { progressFill.style.transition = 'none'; progressFill.style.width = '0%'; }, 500);
         }
 
         const stages = document.querySelectorAll('.loading-stages .stage');
         stages.forEach(s => { s.classList.remove('active'); s.classList.add('done'); });
-        document.getElementById('loadingText').textContent = '完成！';
+        document.getElementById('loadingText').textContent = '路线已就绪';
 
         setTimeout(() => {
             const overlay = document.getElementById('loadingOverlay');
@@ -502,7 +422,6 @@ const App = (() => {
         }, 500);
     }
 
-    /** 天气→图标 */
     const W_ICONS = { sunny:'☀️', clear:'☀️', cloudy:'☁️', overcast:'☁️', partly:'⛅', mist:'🌫', fog:'🌫', rain:'🌧', drizzle:'🌦', thunder:'⛈', snow:'❄️' };
     function wIcon(c) {
         c = (c||'').toLowerCase();
@@ -510,7 +429,6 @@ const App = (() => {
         return '🌤';
     }
 
-    /** 更新导航栏：城市 + 天气图标 + 温度 */
     async function setNavbarCity(city) {
         const el = document.getElementById('navbarCity');
         if (!el || !city) return;
@@ -523,7 +441,6 @@ const App = (() => {
         } catch(e) {}
     }
 
-    /** 分享路线 */
     function shareRoute() {
         if (!currentRouteData) return;
         const wps = currentRouteData.waypoints || [];
@@ -542,7 +459,6 @@ const App = (() => {
         });
     }
 
-    /** 跳过途经点 */
     function skipWaypoint(index) {
         if (!currentRouteData) return;
         const wps = currentRouteData.waypoints || [];
@@ -558,12 +474,6 @@ const App = (() => {
         showToast(`已跳过：${removed[0]?.name || ''}`, 'success');
     }
 
-
-    /**
-     * 显示 Toast 消息 v2 — 带 SVG 图标
-     * @param {string} message - 消息内容
-     * @param {string} type - 'success' | 'error' | ''
-     */
     function showToast(message, type = '') {
         const toast = document.getElementById('toast');
         const toastText = document.getElementById('toastText');
@@ -572,7 +482,6 @@ const App = (() => {
         toastText.textContent = message;
         toast.className = 'toast ' + type;
 
-        // 设置图标
         if (type === 'success') {
             toastIcon.innerHTML = `<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="#fff" stroke-width="1.5"/><polyline points="5,9 8,12 13,6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         } else if (type === 'error') {
@@ -581,30 +490,19 @@ const App = (() => {
             toastIcon.innerHTML = '';
         }
 
-        // 触发显示
         requestAnimationFrame(() => {
             toast.classList.add('show');
         });
 
-        // 3 秒后自动消失
         clearTimeout(toast._timeout);
         toast._timeout = setTimeout(() => {
             toast.classList.remove('show');
         }, 3000);
     }
 
-    /**
-     * 初始化自定义确认弹窗
-     */
     function initConfirmDialog() {
-        // 这个会被 history.js 使用
     }
 
-    /**
-     * 显示自定义确认弹窗（供外部调用）
-     * @param {string} message - 确认消息
-     * @returns {Promise<boolean>} true=确认, false=取消
-     */
     function showConfirm(message) {
         return new Promise((resolve) => {
             const overlay = document.getElementById('confirmOverlay');
@@ -630,9 +528,6 @@ const App = (() => {
         });
     }
 
-    /**
-     * Haversine 距离计算（km）
-     */
     function haversineDistance(lat1, lng1, lat2, lng2) {
         const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -641,16 +536,12 @@ const App = (() => {
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    /**
-     * HTML 转义工具
-     */
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
-    // 公开 API
     return {
         init,
         showToast,
@@ -658,9 +549,6 @@ const App = (() => {
     };
 })();
 
-// ============================================================
-// 页面加载完成后启动应用
-// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
     App.init();
 });

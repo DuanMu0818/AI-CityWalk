@@ -1,9 +1,3 @@
-"""
-AI 路线生成服务模块 v3
-调用 DeepSeek API 生成 CityWalk 路线
-v3 改进：单组地点 + 去回头路约束 + 纯步行/灵活漫步共用同一组途经点
-"""
-
 import json
 import re
 from openai import OpenAI
@@ -40,8 +34,6 @@ SYSTEM_PROMPT = """你是 CityWalk 路线规划师。你负责设计路线概念
 
 
 class AIService:
-    """AI 路线生成服务"""
-
     def __init__(self):
         self.client = OpenAI(
             api_key=Config.DEEPSEEK_API_KEY,
@@ -50,11 +42,6 @@ class AIService:
         self.model = Config.DEEPSEEK_MODEL
 
     def generate_route(self, preferences):
-        """
-        根据用户偏好生成 CityWalk 路线
-        preferences: city, theme, time_energy, budget, special_needs, description
-        返回: 解析后的路线字典（纯步行途经点列表）
-        """
         user_prompt = self._build_user_prompt(preferences)
 
         try:
@@ -85,7 +72,6 @@ class AIService:
             raise
 
     def _build_user_prompt(self, prefs):
-        """构造中文提示词（含位置感知）"""
         city = prefs.get("city", "")
         theme = prefs.get("theme", "不限")
         time_energy = prefs.get("time_energy", "由你自行判断")
@@ -117,7 +103,6 @@ class AIService:
         return "\n".join(parts)
 
     def _parse_json(self, text):
-        """三层降级解析 JSON"""
         try:
             data = json.loads(text)
             if self._validate_route(data):
@@ -147,7 +132,6 @@ class AIService:
         return None
 
     def _validate_route(self, data):
-        """验证路线结构"""
         if not isinstance(data, dict):
             return False
         if 'waypoints' not in data or not isinstance(data['waypoints'], list) or len(data['waypoints']) == 0:
@@ -158,7 +142,6 @@ class AIService:
         return True
 
     def _retry(self, user_prompt):
-        """重试一次"""
         retry_prompt = user_prompt + "\n\n【重要】只返回纯 JSON，不要 ``` 包裹。"
         try:
             response = self.client.chat.completions.create(

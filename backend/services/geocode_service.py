@@ -1,16 +1,9 @@
-"""
-腾讯地图地理编码服务模块
-将 AI 生成的地点名称转换为 GCJ-02 坐标（lat, lng）
-"""
-
 import time
 import requests
 from config import Config
 
 
 class GeocodeService:
-    """腾讯地图地理编码服务，为路线途经点补充坐标数据"""
-
     def __init__(self):
         self.key = Config.TENCENT_MAP_KEY
         self.geocode_url = Config.TENCENT_GEOCODE_URL
@@ -18,15 +11,6 @@ class GeocodeService:
         self.ip_location_url = Config.TENCENT_IP_LOCATION_URL
 
     def geocode_waypoints(self, waypoints, city):
-        """
-        为途经点列表中的每个地点获取 GCJ-02 坐标
-        参数:
-            waypoints: 途经点列表（每个点含 name 字段）
-            city: 城市名（用于提高搜索精度）
-        返回:
-            waypoints: 注入了 lat/lng 坐标的途经点列表
-            failed: 地理编码失败的地点名称列表
-        """
         result_waypoints = []
         failed = []
 
@@ -38,7 +22,6 @@ class GeocodeService:
                 failed.append(f"（空名称）")
                 continue
 
-            # 获取坐标
             location = self._search_location(name, city)
 
             if location:
@@ -63,7 +46,6 @@ class GeocodeService:
         for wp in result_waypoints:
             lat, lng = wp.get("lat"), wp.get("lng")
             if lat is None or lng is None:
-                # 编码失败的地点不参与去重，直接保留
                 unique_waypoints.append(wp)
                 continue
             key = (lat, lng)
@@ -76,20 +58,10 @@ class GeocodeService:
         return unique_waypoints, failed
 
     def _search_location(self, name, city):
-        """
-        搜索地点坐标，先尝试地理编码，失败则尝试 POI 搜索
-        参数:
-            name: 地点名称
-            city: 城市名
-        返回:
-            包含 lat/lng 的字典，或 None
-        """
-        # 第一步：使用地理编码接口
         location = self._geocode(name, city)
         if location:
             return location
 
-        # 第二步：使用 POI 搜索接口作为备选
         location = self._poi_search(name, city)
         if location:
             return location
@@ -97,12 +69,8 @@ class GeocodeService:
         return None
 
     def _geocode(self, name, city):
-        """
-        调用腾讯地图地理编码 API
-        文档: https://lbs.qq.com/webservice_v1/guide-geocoder.html
-        """
+        # 文档: https://lbs.qq.com/webservice_v1/guide-geocoder.html
         try:
-            # 构造地址：地点名 + 城市名，提高精度
             address = f"{city}{name}"
             params = {
                 "address": address,
@@ -111,7 +79,6 @@ class GeocodeService:
             response = requests.get(self.geocode_url, params=params, timeout=10)
             data = response.json()
 
-            # status 0 表示成功
             if data.get("status") == 0 and data.get("result"):
                 result = data["result"]
                 # 腾讯 API 返回的 location 是 {lat, lng} 对象
@@ -134,15 +101,7 @@ class GeocodeService:
             return None
 
     def reverse_geocode(self, lat, lng):
-        """
-        反向地理编码：将坐标转换为地址信息
-        文档: https://lbs.qq.com/webservice_v1/guide-geocoder.html
-        参数:
-            lat: 纬度（GCJ-02）
-            lng: 经度（GCJ-02）
-        返回:
-            包含 city, address 等信息的字典，或 None
-        """
+        # 文档: https://lbs.qq.com/webservice_v1/guide-geocoder.html
         try:
             params = {
                 "location": f"{lat},{lng}",
@@ -185,14 +144,7 @@ class GeocodeService:
             return None
 
     def ip_location(self, ip=""):
-        """
-        IP 定位：通过 IP 地址获取当前城市（不需要 GPS）
-        文档: https://lbs.qq.com/webservice_v1/guide-ip.html
-        参数:
-            ip: 客户端 IP（留空则使用请求来源 IP）
-        返回:
-            包含 city, lat, lng 等信息的字典，或 None
-        """
+        # 文档: https://lbs.qq.com/webservice_v1/guide-ip.html
         try:
             params = {"key": self.key}
             if ip:
@@ -202,14 +154,12 @@ class GeocodeService:
             response = requests.get(self.ip_location_url, params=params, timeout=10)
             data = response.json()
 
-            # status 0 表示成功
             if data.get("status") == 0 and data.get("result"):
                 result = data["result"]
                 ad_info = result.get("ad_info", {})
                 location = result.get("location", {})
 
                 city = ad_info.get("city", "")
-                # 去掉"市"字后缀
                 if city and city.endswith("市"):
                     city = city[:-1]
 
@@ -230,10 +180,7 @@ class GeocodeService:
             return None
 
     def _poi_search(self, name, city):
-        """
-        调用腾讯地图 POI 搜索 API（地理编码失败的备选方案）
-        文档: https://lbs.qq.com/webservice_v1/guide-search.html
-        """
+        # 文档: https://lbs.qq.com/webservice_v1/guide-search.html
         try:
             params = {
                 "keyword": name,
@@ -244,7 +191,6 @@ class GeocodeService:
             response = requests.get(self.poi_url, params=params, timeout=10)
             data = response.json()
 
-            # status 0 表示成功
             if data.get("status") == 0 and data.get("data"):
                 places = data["data"]
                 if len(places) > 0:
@@ -262,15 +208,7 @@ class GeocodeService:
             return None
 
     def get_walking_direction(self, from_lat, from_lng, to_lat, to_lng):
-        """
-        调用腾讯地图步行路线规划 API，获取两点之间的真实步行路径
-        文档: https://lbs.qq.com/webservice_v1/guide-direction.html
-        参数:
-            from_lat, from_lng: 起点坐标
-            to_lat, to_lng: 终点坐标
-        返回:
-            {distance, duration, path: [{lat, lng}, ...]} 或 None
-        """
+        # 文档: https://lbs.qq.com/webservice_v1/guide-direction.html
         try:
             url = "https://apis.map.qq.com/ws/direction/v1/walking/"
             params = {
@@ -311,8 +249,6 @@ class GeocodeService:
             return None
 
     def geocode_center(self, address):
-        """地理编码片区中心坐标 — 降低可靠性门槛 + 多策略尝试"""
-        # 策略1：城市+片区名，低门槛
         for attempt in [address, address.replace('-', '')]:
             loc = self._geocode_raw(attempt, min_reliability=1)
             if loc:
@@ -321,7 +257,6 @@ class GeocodeService:
         return None
 
     def _geocode_raw(self, address, min_reliability=1):
-        """地理编码，可指定最低可信度"""
         try:
             params = {"address": address, "key": self.key}
             response = requests.get(self.geocode_url, params=params, timeout=10)
@@ -340,14 +275,10 @@ class GeocodeService:
             return None
 
     def search_nearby_pois(self, lat, lng, keyword, radius=1500):
-        """搜索周边POI并返回结构化结果"""
         return self.search_nearby(lat, lng, keyword, radius)
 
     def search_nearby(self, lat, lng, keyword="", radius=1000):
-        """
-        搜索周边 POI
-        文档: https://lbs.qq.com/webservice_v1/guide-search.html
-        """
+        # 文档: https://lbs.qq.com/webservice_v1/guide-search.html
         try:
             params = {
                 "boundary": f"nearby({lat},{lng},{radius})",

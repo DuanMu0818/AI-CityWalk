@@ -1,28 +1,23 @@
-/*
- * AI CityWalk — 前端样式表 v2
- * 视觉升级版：SVG 图标系统 + 渐变配色 + 微交互 + 完整响应式
- */
-
-/* ============================================================
-   CSS 变量 — 设计系统 v2
-   ============================================================ */
 :root {
-    /* 主色系统 */
     --color-primary: #4A90D9;
     --color-primary-dark: #3A7BC8;
     --color-primary-light: rgba(74, 144, 217, 0.1);
     --gradient-primary: linear-gradient(135deg, #4A90D9 0%, #5BA0E9 50%, #67C23A 100%);
 
-    /* 辅助色 */
+    --brand-navy: #0B1F3A;
+    --brand-navy-deep: #061221;
+    --brand-navy-soft: #173F70;
+    --brand-electric: #2E8BFF;
+    --brand-electric-light: #7CC0FF;
+    --gradient-brand: linear-gradient(100deg, #0B1F3A 0%, #1B4F8F 55%, #2E8BFF 100%);
+
     --color-green: #67C23A;
     --color-orange: #E6A23C;
     --color-warm: #F0A050;
 
-    /* 背景色 */
     --color-bg: #F5F7FA;
     --color-card: #FFFFFF;
 
-    /* 文字色 */
     --color-text: #303133;
     --color-text-secondary: #909399;
     --color-border: #E4E7ED;
@@ -30,50 +25,41 @@
     --color-error: #F56C6C;
     --color-success: #67C23A;
 
-    /* 暖色点缀 */
     --color-accent-warm: #F5A623;
 
-    /* 字体 */
     --font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
 
-    /* 字号 */
     --font-xl: 24px;
     --font-lg: 16px;
     --font-md: 14px;
     --font-sm: 12px;
 
-    /* 字重 */
     --weight-bold: 600;
     --weight-medium: 500;
     --weight-regular: 400;
 
-    /* 间距 */
     --space-xs: 8px;
     --space-sm: 12px;
     --space-md: 16px;
     --space-lg: 24px;
     --space-xl: 32px;
 
-    /* 圆角 */
     --radius-btn: 8px;
     --radius-input: 8px;
     --radius-card: 12px;
     --radius-capsule: 20px;
     --radius-drawer: 16px;
 
-    /* 阴影 */
     --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06);
     --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.1);
     --shadow-drawer: 0 8px 24px rgba(0, 0, 0, 0.15);
     --shadow-nav: 0 1px 0 rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.04);
 
-    /* 过渡 */
     --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-spring: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 
-    /* 类别颜色 */
     --cat-food: #E67E22;
     --cat-history: #8B6914;
     --cat-art: #8E44AD;
@@ -86,9 +72,6 @@
     --cat-default: #4A90D9;
 }
 
-/* ============================================================
-   Reset
-   ============================================================ */
 *, *::before, *::after {
     margin: 0;
     padding: 0;
@@ -111,9 +94,6 @@ body {
     overflow: hidden;
 }
 
-/* ============================================================
-   导航栏 v2 — 64px 高度 + 渐变阴影
-   ============================================================ */
 .navbar {
     position: fixed;
     top: 0;
@@ -131,7 +111,6 @@ body {
     padding: 0 var(--space-lg);
 }
 
-/* 导航栏底部渐变装饰线 */
 .navbar::after {
     content: '';
     position: absolute;
@@ -139,8 +118,8 @@ body {
     left: 0;
     right: 0;
     height: 2px;
-    background: var(--gradient-primary);
-    opacity: 0.5;
+    background: var(--gradient-brand);
+    opacity: 0.35;
 }
 
 .navbar-left {
@@ -151,24 +130,25 @@ body {
 
 .navbar-logo {
     flex-shrink: 0;
+    filter: drop-shadow(0 1px 2px rgba(6, 18, 33, 0.16)) drop-shadow(0 3px 8px rgba(6, 18, 33, 0.14));
 }
 
 .navbar-title {
     font-size: var(--font-lg);
-    font-weight: var(--weight-bold);
-    background: var(--gradient-primary);
+    font-weight: 700;
+    background: var(--gradient-brand);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.2px;
 }
 
 .navbar-city {
     font-size: var(--font-sm);
-    color: var(--color-text);
+    color: var(--brand-navy);
     padding: 4px 12px;
-    background: linear-gradient(135deg, rgba(74,144,217,0.06), rgba(103,194,58,0.06));
-    border: 1px solid rgba(74,144,217,0.12);
+    background: linear-gradient(135deg, rgba(46,139,255,0.07), rgba(11,31,58,0.03));
+    border: 1px solid rgba(11,31,58,0.10);
     border-radius: var(--radius-capsule);
     margin-left: 8px;
     font-weight: var(--weight-medium);
@@ -206,9 +186,6 @@ body {
     flex-shrink: 0;
 }
 
-/* ============================================================
-   主内容区布局 v3 — sidebar + (map + cards) 弹性分区
-   ============================================================ */
 .main-content {
     display: flex;
     margin-top: 64px;
@@ -216,7 +193,6 @@ body {
     position: relative;
 }
 
-/* 右侧区域：地图 + 卡片（纵向弹性分区） */
 .content-right {
     flex: 1;
     display: flex;
@@ -225,9 +201,6 @@ body {
     overflow: hidden;
 }
 
-/* ============================================================
-   左侧边栏 v2
-   ============================================================ */
 .sidebar {
     width: 370px;
     min-width: 370px;
@@ -242,18 +215,16 @@ body {
 
 .sidebar-accent-bar {
     height: 3px;
-    background: var(--gradient-primary);
+    background: var(--gradient-brand);
     flex-shrink: 0;
 }
 
-/* 可滚动内容区 */
 .sidebar-scroll {
     flex: 1;
     overflow-y: auto;
     min-height: 0;
 }
 
-/* 滚动条 */
 .sidebar-scroll::-webkit-scrollbar { width: 5px; }
 .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
 .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
@@ -275,7 +246,6 @@ body {
     padding-bottom: 10px;
 }
 
-/* 标题下划线装饰 */
 .form-title::after {
     content: '';
     position: absolute;
@@ -293,7 +263,6 @@ body {
     margin-top: -12px;
 }
 
-/* 步骤编号徽章 */
 .step-badge {
     display: inline-flex;
     align-items: center;
@@ -311,7 +280,6 @@ body {
     box-shadow: 0 2px 4px rgba(74, 144, 217, 0.2);
 }
 
-/* 选填标签 */
 .label-optional {
     font-size: var(--font-sm);
     color: var(--color-placeholder);
@@ -319,14 +287,12 @@ body {
     margin-left: 4px;
 }
 
-/* 表单提示 */
 .form-hint {
     font-size: var(--font-sm);
     color: var(--color-placeholder);
     margin-top: 2px;
 }
 
-/* 表单组 */
 .form-group {
     display: flex;
     flex-direction: column;
@@ -339,7 +305,6 @@ body {
     color: var(--color-text);
 }
 
-/* 文本输入框 */
 .form-input {
     width: 100%;
     height: 40px;
@@ -364,7 +329,6 @@ body {
     background: var(--color-card);
 }
 
-/* 城市输入行 */
 .city-input-row {
     display: flex;
     gap: var(--space-xs);
@@ -374,7 +338,6 @@ body {
     flex: 1;
 }
 
-/* 定位成功标记 */
 .locate-success-badge {
     display: inline-flex;
     align-items: center;
@@ -387,7 +350,6 @@ body {
     white-space: nowrap;
 }
 
-/* 定位按钮 v2 */
 .btn-locate {
     width: 40px;
     height: 40px;
@@ -424,7 +386,6 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* 文本域 */
 .form-textarea {
     width: 100%;
     height: 100px;
@@ -451,7 +412,6 @@ body {
     background: var(--color-card);
 }
 
-/* 字数统计区 v2 */
 .char-count-wrap {
     display: flex;
     align-items: center;
@@ -484,9 +444,6 @@ body {
     text-align: right;
 }
 
-/* ============================================================
-   胶囊标签组 v2
-   ============================================================ */
 .capsule-group {
     display: flex;
     flex-wrap: wrap;
@@ -543,9 +500,6 @@ body {
     opacity: 0.7;
 }
 
-/* ============================================================
-   生成按钮区域 v2 — sticky 固定
-   ============================================================ */
 .generate-area {
     flex-shrink: 0;
     background: var(--color-card);
@@ -589,7 +543,6 @@ body {
     box-shadow: 0 2px 8px rgba(74, 144, 217, 0.3);
 }
 
-/* 水波纹效果 */
 .btn-generate::after {
     content: '';
     position: absolute;
@@ -628,9 +581,6 @@ body {
     margin-top: var(--space-xs);
 }
 
-/* ============================================================
-   地图区域 v3 — flex 弹性伸缩
-   ============================================================ */
 .map-section {
     flex: 1 1 60%;
     min-height: 200px;
@@ -644,7 +594,6 @@ body {
     position: relative;
 }
 
-/* 地图占位引导 v2 — 品牌插图 */
 .map-placeholder {
     position: absolute;
     top: 50%;
@@ -689,9 +638,6 @@ body {
     color: var(--color-text-secondary);
 }
 
-/* ============================================================
-   路线卡片区 v3 — flex 弹性显示（与地图共享右侧空间）
-   ============================================================ */
 .cards-section {
     background: var(--color-card);
     border-top: 1px solid var(--color-border);
@@ -756,7 +702,6 @@ body {
     overflow: hidden;
 }
 
-/* 统计概览 */
 .cards-stats {
     display: flex;
     gap: var(--space-xs);
@@ -789,7 +734,6 @@ body {
     transform: translateY(0);
 }
 
-/* 模式切换按钮组 */
 .mode-switch {
     display: flex;
     border: 1px solid var(--color-border);
@@ -837,7 +781,6 @@ body {
     border-radius: var(--radius-capsule);
 }
 
-/* 卡片滚动容器 */
 .cards-scroll-wrap {
     position: relative;
     display: flex;
@@ -854,7 +797,6 @@ body {
     flex: 1;
 }
 
-/* 滚动按钮 */
 .cards-scroll-btn {
     position: absolute;
     top: 50%;
@@ -895,7 +837,6 @@ body {
     right: -12px;
 }
 
-/* 卡片容器滚动条美化 */
 .cards-container::-webkit-scrollbar {
     height: 4px;
 }
@@ -909,13 +850,11 @@ body {
     border-radius: 2px;
 }
 
-/* Firefox 滚动条 */
 .cards-container {
     scrollbar-width: thin;
     scrollbar-color: var(--color-border) transparent;
 }
 
-/* 单个路线卡片 v2 */
 .route-card {
     min-width: 270px;
     max-width: 290px;
@@ -941,7 +880,6 @@ body {
     padding: var(--space-md);
 }
 
-/* 卡片顶部类别色条 */
 .route-card::before {
     content: '';
     display: block;
@@ -961,7 +899,6 @@ body {
     box-shadow: 0 0 0 2px var(--color-primary-light), var(--shadow-card-hover);
 }
 
-/* 卡片入场动画 */
 @keyframes cardEnter {
     from { opacity: 0; transform: translateY(20px) scale(0.96); }
     to { opacity: 1; transform: translateY(0) scale(1); }
@@ -1001,7 +938,6 @@ body {
     white-space: nowrap;
 }
 
-/* 类别标签 */
 .card-category {
     display: inline-block;
     padding: 3px 10px;
@@ -1015,7 +951,6 @@ body {
     white-space: nowrap;
 }
 
-/* 类别颜色 */
 .card-category.cat-美食{background:rgba(230,126,34,0.1);color:#E67E22}
 .card-category.cat-历史街区,.card-category.cat-文化遗址{background:rgba(139,105,20,0.1);color:#8B6914}
 .card-category.cat-博物馆{background:rgba(52,152,219,0.1);color:#3498DB}
@@ -1089,7 +1024,6 @@ body {
 }
 .card-tips:hover .card-tips-pop { display: block; }
 
-/* 卡片导航链接 */
 .card-nav-links { display: flex; gap: 4px; flex-shrink: 0; margin-left: auto; }
 .nav-pill { font-size: 10px; padding: 2px 6px; border-radius: 8px; text-decoration: none; font-weight: var(--weight-medium); transition: all var(--transition-fast); }
 .nav-pill.nav-gaode { background: rgba(0,119,255,0.08); color: #07F; }
@@ -1099,7 +1033,6 @@ body {
 .nav-pill.nav-baidu { background: rgba(222,82,70,0.08); color: #DE5246; }
 .nav-pill.nav-baidu:hover { background: #DE5246; color: #fff; }
 
-/* 周边按钮 */
 .card-nearby-btn {
     flex-shrink: 0;
     width: 24px;
@@ -1118,179 +1051,247 @@ body {
 .route-card:hover .card-nearby-btn { opacity: 1; }
 .card-nearby-btn:hover { background: var(--color-primary-light); border-color: var(--color-primary); }
 
-/* ============================================================
-   加载动画遮罩 v2
-   ============================================================ */
+/* ==================== 加载动画 ==================== */
 .loading-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    inset: 0;
     z-index: 9999;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background:
+        radial-gradient(52% 46% at 50% 34%, rgba(46, 139, 255, 0.10), rgba(46, 139, 255, 0) 70%),
+        rgba(246, 249, 253, 0.82);
+    backdrop-filter: blur(18px) saturate(115%);
+    -webkit-backdrop-filter: blur(18px) saturate(115%);
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     pointer-events: none;
-    transform: scale(1.05);
-    transition: opacity 0.35s ease, transform 0.35s ease;
+    transition: opacity 0.32s ease;
 }
 
 .loading-overlay.show {
     opacity: 1;
     pointer-events: auto;
-    transform: scale(1);
 }
 
 .loading-overlay.hide {
     opacity: 0;
-    transform: scale(0.96);
-    transition: opacity 0.25s ease, transform 0.25s ease;
+    transition: opacity 0.22s ease;
 }
 
-/* 加载卡片 v2 — 玻璃拟态 */
 .loading-card {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    border-radius: var(--radius-card);
-    padding: 40px 44px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(74,144,217,0.05);
-    text-align: center;
+    position: relative;
+    width: min(400px, calc(100vw - 40px));
+    padding: 34px 36px 26px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(250, 252, 255, 0.94));
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow:
+        0 32px 64px -24px rgba(6, 18, 33, 0.26),
+        0 2px 10px rgba(6, 18, 33, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
-    min-width: 320px;
-    max-width: 380px;
+    gap: 18px;
+    transform: translateY(8px) scale(0.99);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* 步行小人区域 */
-.loading-walker-area {
+.loading-overlay.show .loading-card {
+    transform: translateY(0) scale(1);
+}
+
+.loading-visual {
     position: relative;
-    width: 80px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 104px;
+    height: 104px;
+    display: grid;
+    place-items: center;
+    margin: 4px 0 2px;
 }
 
-/* 双层脉冲光环 */
-.pulse-ring {
+.visual-halo {
     position: absolute;
-    top: 55%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    width: 210px;
+    height: 210px;
     border-radius: 50%;
-    border: 2.5px solid var(--color-primary);
-    animation: pulseRing 2s ease-out infinite;
+    background: radial-gradient(circle, rgba(46, 139, 255, 0.17) 0%, rgba(46, 139, 255, 0.05) 42%, rgba(46, 139, 255, 0) 68%);
+    animation: haloBreathe 4.8s ease-in-out infinite;
+    pointer-events: none;
 }
 
-.pulse-ring-outer {
-    width: 60px;
-    height: 60px;
-    opacity: 0.35;
-    animation-delay: 0s;
-}
-
-.pulse-ring-inner {
-    width: 44px;
-    height: 44px;
-    opacity: 0.55;
-    animation-delay: 0.6s;
-}
-
-@keyframes pulseRing {
-    0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0.7; }
-    100% { transform: translate(-50%, -50%) scale(1.7); opacity: 0; }
-}
-
-/* 走路动画 — 整体微动 */
-@keyframes walkCycle {
-    0%,100% { transform: translateX(-3px) translateY(0); }
-    25% { transform: translateX(0px) translateY(-3px); }
-    50% { transform: translateX(3px) translateY(0); }
-    75% { transform: translateX(0px) translateY(-2px); }
-}
-
-.walker-svg {
+.loader-mark {
     position: relative;
-    z-index: 2;
-    animation: walkCycle 1s ease-in-out infinite;
+    z-index: 1;
+    width: 104px;
+    height: 104px;
+    border-radius: 29px;
+    filter: drop-shadow(0 14px 22px rgba(6, 18, 33, 0.22)) drop-shadow(0 2px 4px rgba(6, 18, 33, 0.14));
 }
 
-/* 进度条 */
+.mark-skyline {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+}
+
+.loading-overlay.show .mark-skyline {
+    animation: markRise 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mark-route {
+    animation: routeMarch 2.6s linear infinite;
+}
+
+.mark-terminal-halo {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: terminalPulse 2.6s ease-out infinite;
+}
+
+.mark-runner {
+    filter: drop-shadow(0 0 3px rgba(46, 139, 255, 0.9));
+}
+
+@keyframes haloBreathe {
+    0%, 100% { transform: scale(0.94); opacity: 0.55; }
+    50% { transform: scale(1.06); opacity: 0.9; }
+}
+
+@keyframes markRise {
+    from { transform: translateY(3px) scaleY(0.84); opacity: 0; }
+    to { transform: none; opacity: 1; }
+}
+
+@keyframes routeMarch {
+    to { stroke-dashoffset: -9; }
+}
+
+@keyframes terminalPulse {
+    0% { transform: scale(1); opacity: 0.55; }
+    70%, 100% { transform: scale(2.6); opacity: 0; }
+}
+
+.loading-text {
+    margin: 0;
+    min-height: 21px;
+    font-size: 14px;
+    font-weight: var(--weight-medium);
+    letter-spacing: 0.02em;
+    color: #3A4A60;
+    text-align: center;
+    transition: opacity 0.3s ease;
+}
+
 .loading-progress-track {
-    width: 200px;
+    position: relative;
+    width: 100%;
     height: 3px;
-    background: var(--color-border);
-    border-radius: 2px;
+    border-radius: 3px;
+    background: rgba(11, 31, 58, 0.07);
     overflow: hidden;
 }
 
 .loading-progress-fill {
+    position: relative;
     height: 100%;
     width: 0%;
-    background: var(--gradient-primary);
-    border-radius: 2px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #1B4F8F 0%, #2E8BFF 62%, #79C0FF 100%);
+    box-shadow: 0 0 12px rgba(46, 139, 255, 0.55);
     transition: width 0.6s ease;
 }
 
-/* 进度阶段指示 */
+.loading-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    margin: -4px -2px 0 0;
+    border-radius: 50%;
+    background: #EAF4FF;
+    box-shadow: 0 0 10px 2px rgba(46, 139, 255, 0.75);
+}
+
 .loading-stages {
-    display: flex;
-    gap: var(--space-md);
-    justify-content: center;
+    position: relative;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 2px;
+}
+
+.loading-stages::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 16.67%;
+    right: 16.67%;
+    height: 1px;
+    background: rgba(11, 31, 58, 0.10);
 }
 
 .stage {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 5px;
-    font-size: var(--font-sm);
-    color: var(--color-placeholder);
-    transition: color 0.4s ease;
+    gap: 9px;
 }
 
-.stage svg circle {
-    transition: fill 0.4s ease, stroke 0.4s ease;
+.stage-node {
+    position: relative;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    border: 1.5px solid #CBD5E1;
+    transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
-.stage.active {
-    color: var(--color-primary);
+.stage-label {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: #9AA5B5;
+    white-space: nowrap;
+    transition: color 0.3s ease;
+}
+
+.stage.active .stage-node {
+    background: var(--brand-electric);
+    border-color: var(--brand-electric);
+    box-shadow: 0 0 0 4px rgba(46, 139, 255, 0.14);
+}
+
+.stage.active .stage-node::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(46, 139, 255, 0.45);
+    animation: nodePing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.stage.active .stage-label {
+    color: var(--brand-navy);
     font-weight: var(--weight-medium);
 }
 
-.stage.active svg circle {
-    fill: var(--color-primary);
-    stroke: var(--color-primary);
+.stage.done .stage-node {
+    background: var(--brand-navy);
+    border-color: var(--brand-navy);
 }
 
-.stage.done {
-    color: var(--color-green);
+.stage.done .stage-label {
+    color: #7B8798;
 }
 
-.stage.done svg circle {
-    fill: var(--color-green);
-    stroke: var(--color-green);
+@keyframes nodePing {
+    0% { transform: scale(0.8); opacity: 0.9; }
+    80%, 100% { transform: scale(1.9); opacity: 0; }
 }
 
-/* 轮换文字 */
-.loading-text {
-    font-size: var(--font-md);
-    color: var(--color-text-secondary);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    margin: 0;
-}
-
-/* ============================================================
-   自定义确认弹窗 v2
-   ============================================================ */
 .confirm-overlay {
     position: fixed;
     top: 0;
@@ -1381,9 +1382,6 @@ body {
     box-shadow: 0 4px 12px rgba(245, 108, 108, 0.3);
 }
 
-/* ============================================================
-   历史记录抽屉 v2
-   ============================================================ */
 .drawer-mask {
     position: fixed;
     top: 0;
@@ -1465,7 +1463,6 @@ body {
     padding: var(--space-md);
 }
 
-/* 历史列表项 */
 .history-item {
     padding: var(--space-md);
     border: 1px solid var(--color-border);
@@ -1546,7 +1543,6 @@ body {
     border-color: var(--color-error);
 }
 
-/* 抽屉加载/空状态 */
 .drawer-loading {
     text-align: center;
     padding: 48px var(--space-md);
@@ -1575,7 +1571,6 @@ body {
     color: var(--color-placeholder);
 }
 
-/* 重试按钮 */
 .drawer-retry-btn {
     display: inline-flex;
     align-items: center;
@@ -1597,7 +1592,6 @@ body {
     border-color: var(--color-primary);
 }
 
-/* 抽屉搜索框 */
 .drawer-search {
     display: flex;
     align-items: center;
@@ -1622,7 +1616,6 @@ body {
     color: var(--color-placeholder);
 }
 
-/* 卡片跳过按钮 */
 .card-skip-btn {
     position: absolute;
     top: 6px;
@@ -1651,7 +1644,6 @@ body {
     color: #fff;
 }
 
-/* 分享按钮 */
 .btn-share {
     display: flex;
     align-items: center;
@@ -1672,7 +1664,6 @@ body {
     color: var(--color-primary);
 }
 
-/* 示例路线按钮 */
 .placeholder-example-btn {
     margin-top: var(--space-md);
     padding: 8px 20px;
@@ -1693,7 +1684,6 @@ body {
     border-style: solid;
 }
 
-/* 附近 POI 面板 */
 .nearby-panel {
     position: absolute;
     bottom: 12px;
@@ -1752,7 +1742,6 @@ body {
     font-size: 16px;
 }
 
-/* 历史分页 */
 .drawer-pagination {
     display: flex;
     justify-content: center;
@@ -1789,9 +1778,6 @@ body {
     color: var(--color-text-secondary);
 }
 
-/* ============================================================
-   Toast v2 — 图标 + 弹入动画
-   ============================================================ */
 .toast {
     position: fixed;
     top: 80px;
@@ -1832,9 +1818,6 @@ body {
     align-items: center;
 }
 
-/* ============================================================
-   信息窗样式 v2 — 从 JS 内联提取
-   ============================================================ */
 .info-window-content {
     padding: 14px 16px;
     min-width: 220px;
@@ -1871,7 +1854,6 @@ body {
     font-weight: var(--weight-medium);
 }
 
-/* 信息窗导航按钮 */
 .info-window-nav {
     margin-top: 10px;
     padding-top: 8px;
@@ -1914,9 +1896,6 @@ body {
 }
 .nav-tencent:hover { background: #4A90D9; color: #fff; }
 
-/* ============================================================
-   响应式 — 平板横屏（769px-1024px）
-   ============================================================ */
 @media (min-width: 769px) and (max-width: 1024px) {
     .sidebar {
         width: 300px;
@@ -1941,9 +1920,6 @@ body {
     }
 }
 
-/* ============================================================
-   响应式 — 移动端（≤768px）
-   ============================================================ */
 @media (max-width: 768px) {
     .navbar {
         padding: 0 var(--space-md);
@@ -2025,12 +2001,18 @@ body {
     }
 
     .loading-card {
-        min-width: 280px;
-        padding: 32px 24px;
+        width: min(360px, calc(100vw - 32px));
+        padding: 30px 26px 24px;
     }
 
-    .loading-stages {
-        gap: 12px;
+    .loading-visual,
+    .loader-mark {
+        width: 92px;
+        height: 92px;
+    }
+
+    .loading-visual {
+        margin: 2px 0 0;
     }
 
     .drawer {
@@ -2049,9 +2031,6 @@ body {
     }
 }
 
-/* ============================================================
-   响应式 — 小屏手机（≤375px）
-   ============================================================ */
 @media (max-width: 375px) {
     .sidebar {
         padding: 0;
@@ -2092,14 +2071,22 @@ body {
     }
 
     .loading-card {
-        min-width: 260px;
-        padding: 24px 20px;
+        padding: 26px 20px 22px;
+        gap: 16px;
+    }
+
+    .loading-visual,
+    .loader-mark {
+        width: 84px;
+        height: 84px;
+    }
+
+    .stage-label {
+        font-size: 10.5px;
+        letter-spacing: 0.03em;
     }
 }
 
-/* ============================================================
-   大屏优化（>1440px）
-   ============================================================ */
 @media (min-width: 1441px) {
     .sidebar {
         width: 400px;
@@ -2117,13 +2104,20 @@ body {
     }
 }
 
-/* ============================================================
-   动画偏好尊重
-   ============================================================ */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+    }
+
+    .mark-runner {
+        display: none;
+    }
+
+    .visual-halo,
+    .mark-terminal-halo {
+        animation: none !important;
+        opacity: 0.5;
     }
 }

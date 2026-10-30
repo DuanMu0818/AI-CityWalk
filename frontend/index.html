@@ -8,30 +8,28 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- ============================================================
-    导航栏 — 固定在页面顶部
-    ============================================================ -->
     <nav class="navbar" id="navbar">
         <div class="navbar-left">
-            <svg class="navbar-logo" width="30" height="30" viewBox="0 0 30 30" fill="none">
-                <circle cx="21" cy="7" r="5" fill="url(#logoGrad)"/>
-                <path d="M21 12 L21 22" stroke="url(#logoGrad)" stroke-width="2.5" stroke-linecap="round"/>
-                <line x1="14" y1="17" x2="7" y2="20" stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
-                <line x1="14" y1="17" x2="21" y2="20" stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
-                <line x1="14" y1="22" x2="7" y2="29" stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
-                <line x1="14" y1="22" x2="21" y2="29" stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+            <svg class="navbar-logo" width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                <rect width="32" height="32" rx="9" fill="url(#navMarkBg)"/>
+                <rect width="32" height="32" rx="9" fill="url(#navMarkGlow)"/>
+                <path d="M6.6 24.9V19.2h3.2v-5.4h4.9v5.4h3.9v-7.6h5.1v13.3" stroke="#F7FAFF" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="M4.8 24.9h22.4" stroke="#F7FAFF" stroke-width="1.5" stroke-linecap="round" opacity="0.42"/>
+                <path d="M10.4 13.2c3.1-.2 4.3-2.6 7.2-3.6s4-2 5.2-4.3" stroke="#2E8BFF" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="2.9 2.2"/>
+                <circle cx="22.8" cy="7.2" r="2.05" fill="#2E8BFF"/>
                 <defs>
-                    <linearGradient id="logoGrad" x1="0" y1="0" x2="28" y2="32">
-                        <stop offset="0%" stop-color="#4A90D9"/>
-                        <stop offset="100%" stop-color="#67C23A"/>
+                    <linearGradient id="navMarkBg" x1="0" y1="0" x2="32" y2="32">
+                        <stop stop-color="#173F70"/><stop offset="1" stop-color="#061221"/>
                     </linearGradient>
+                    <radialGradient id="navMarkGlow" cx="0.18" cy="0.1" r="1">
+                        <stop stop-color="#FFFFFF" stop-opacity="0.16"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+                    </radialGradient>
                 </defs>
             </svg>
             <h1 class="navbar-title">AI CityWalk</h1>
             <span class="navbar-city" id="navbarCity"></span>
         </div>
         <button class="navbar-history-btn" id="btnOpenHistory" title="查看历史记录">
-            <!-- 历史列表图标 -->
             <svg class="nav-icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <rect x="2" y="3" width="14" height="2" rx="1" fill="currentColor"/>
                 <rect x="2" y="8" width="14" height="2" rx="1" fill="currentColor"/>
@@ -41,56 +39,62 @@
         </button>
     </nav>
 
-    <!-- ============================================================
-    加载等待遮罩层 — 路线生成时显示
-    ============================================================ -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-card">
-            <!-- 侧面走路小人动画 -->
-            <div class="loading-walker-area">
-                <div class="pulse-ring pulse-ring-outer"></div>
-                <div class="pulse-ring pulse-ring-inner"></div>
-                <svg class="walker-svg" width="52" height="44" viewBox="0 0 52 44">
-                    <circle cx="26" cy="8" r="5" fill="#4A90D9"/>
-                    <line x1="26" y1="13" x2="26" y2="26" stroke="#4A90D9" stroke-width="2.5" stroke-linecap="round"/>
-                    <line x1="26" y1="17" x2="31" y2="21" stroke="#4A90D9" stroke-width="2" stroke-linecap="round" class="arm-front"/>
-                    <line x1="26" y1="17" x2="20" y2="20" stroke="#4A90D9" stroke-width="2" stroke-linecap="round" class="arm-back"/>
-                    <line x1="26" y1="26" x2="32" y2="35" stroke="#4A90D9" stroke-width="2.2" stroke-linecap="round" class="leg-front"/>
-                    <line x1="26" y1="26" x2="19" y2="36" stroke="#4A90D9" stroke-width="2.2" stroke-linecap="round" class="leg-back"/>
+            <div class="loading-visual">
+                <div class="visual-halo"></div>
+                <svg class="loader-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="loadMarkBg" x1="0" y1="0" x2="32" y2="32">
+                            <stop stop-color="#173F70"/><stop offset="1" stop-color="#061221"/>
+                        </linearGradient>
+                        <radialGradient id="loadMarkGlow" cx="0.18" cy="0.1" r="1">
+                            <stop stop-color="#FFFFFF" stop-opacity="0.16"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+                        </radialGradient>
+                        <path id="loadRoute" d="M10.4 13.2c3.1-.2 4.3-2.6 7.2-3.6s4-2 5.2-4.3"/>
+                        <clipPath id="loadMarkClip"><rect width="32" height="32" rx="9"/></clipPath>
+                    </defs>
+                    <rect width="32" height="32" rx="9" fill="url(#loadMarkBg)"/>
+                    <rect width="32" height="32" rx="9" fill="url(#loadMarkGlow)"/>
+                    <g clip-path="url(#loadMarkClip)">
+                        <path class="mark-skyline" d="M6.6 24.9V19.2h3.2v-5.4h4.9v5.4h3.9v-7.6h5.1v13.3" stroke="#F7FAFF" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+                        <path d="M4.8 24.9h22.4" stroke="#F7FAFF" stroke-width="1.5" stroke-linecap="round" opacity="0.42"/>
+                        <use href="#loadRoute" class="mark-route" stroke="#2E8BFF" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="2.9 2.2"/>
+                        <circle class="mark-terminal" cx="22.8" cy="7.2" r="2.05" fill="#2E8BFF"/>
+                        <circle class="mark-terminal-halo" cx="22.8" cy="7.2" r="2.05" fill="none" stroke="#2E8BFF" stroke-width="0.8"/>
+                        <g class="mark-runner">
+                            <circle r="2.4" fill="#2E8BFF" opacity="0.14"/>
+                            <circle r="1.05" fill="#EAF4FF"/>
+                            <animateMotion dur="4.4s" begin="0.5s" repeatCount="indefinite" rotate="0" path="M10.4 13.2c3.1-.2 4.3-2.6 7.2-3.6s4-2 5.2-4.3"/>
+                        </g>
+                    </g>
                 </svg>
             </div>
 
-            <!-- 进度条 -->
+            <p class="loading-text" id="loadingText" role="status" aria-live="polite">正在规划最佳路线...</p>
+
             <div class="loading-progress-track">
                 <div class="loading-progress-fill" id="loadingProgressFill"></div>
             </div>
 
-            <!-- 进度阶段指示 -->
             <div class="loading-stages" id="loadingStages">
                 <span class="stage" data-stage="ai">
-                    <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-                    AI 思考中
+                    <span class="stage-node"></span>
+                    <span class="stage-label">理解偏好</span>
                 </span>
                 <span class="stage" data-stage="geo">
-                    <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-                    查找坐标
+                    <span class="stage-node"></span>
+                    <span class="stage-label">匹配地点</span>
                 </span>
                 <span class="stage" data-stage="done">
-                    <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-                    生成完成
+                    <span class="stage-node"></span>
+                    <span class="stage-label">生成路线</span>
                 </span>
             </div>
-
-            <!-- 轮换文字 -->
-            <p class="loading-text" id="loadingText">正在规划最佳路线...</p>
         </div>
     </div>
 
-    <!-- ============================================================
-    主内容区 — 左侧表单 + 右侧地图
-    ============================================================ -->
     <main class="main-content" id="mainContent">
-        <!-- 左侧：偏好表单区 -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-accent-bar"></div>
             <div class="sidebar-scroll">
@@ -98,7 +102,6 @@
                 <h2 class="form-title">规划你的 CityWalk</h2>
                 <p class="form-subtitle">告诉 AI 你的偏好，一键生成专属漫步路线</p>
 
-                <!-- 城市输入 -->
                 <div class="form-group">
                     <label class="form-label" for="inputCity">
                         <span class="step-badge">1</span> 选择城市
@@ -108,7 +111,6 @@
                                placeholder="输入城市名，如：成都、上海..."
                                maxlength="20" autocomplete="off">
                         <button class="btn-locate" id="btnLocate" type="button" title="自动定位到当前城市">
-                            <!-- 定位靶心图标 -->
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                                 <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.8"/>
                                 <circle cx="9" cy="9" r="3" fill="currentColor" opacity="0.9"/>
@@ -122,7 +124,6 @@
                     <span class="form-hint">点击定位图标自动识别城市，或手动输入</span>
                 </div>
 
-                <!-- 主题风格（单选胶囊） -->
                 <div class="form-group">
                     <label class="form-label">
                         <span class="step-badge">2</span> 主题风格
@@ -144,7 +145,6 @@
                     </div>
                 </div>
 
-                <!-- 时间体力偏好（单选） -->
                 <div class="form-group">
                     <label class="form-label">
                         <span class="step-badge">3</span> 时间和体力
@@ -169,7 +169,6 @@
                     </div>
                 </div>
 
-                <!-- 预算偏好（单选） -->
                 <div class="form-group">
                     <label class="form-label">
                         <span class="step-badge">4</span> 预算偏好
@@ -191,7 +190,6 @@
                     </div>
                 </div>
 
-                <!-- 特殊需求（多选胶囊） -->
                 <div class="form-group">
                     <label class="form-label">
                         <span class="step-badge">5</span> 特殊需求
@@ -219,7 +217,6 @@
                     </div>
                 </div>
 
-                <!-- 自由描述 -->
                 <div class="form-group">
                     <label class="form-label" for="inputDescription">
                         <span class="step-badge">6</span> 补充描述
@@ -234,12 +231,10 @@
                     </div>
                 </div>
 
-            </div><!-- /form-container -->
-            </div><!-- /sidebar-scroll -->
-            <!-- 生成按钮区域 — 固定在侧边栏底部 -->
+            </div>
+            </div>
             <div class="generate-area">
                     <button class="btn-generate" id="btnGenerate" type="button">
-                        <!-- 路线图标 -->
                         <svg class="btn-generate-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
                             <circle cx="4" cy="5" r="2.5" fill="currentColor" opacity="0.9"/>
                             <circle cx="12" cy="10" r="2.5" fill="currentColor" opacity="0.9"/>
@@ -250,10 +245,9 @@
                         生成路线
                     </button>
                     <p class="generate-hint">只需填写城市即可生成，其余项为可选偏好</p>
-            </div><!-- /generate-area -->
+            </div>
         </aside>
 
-        <!-- 右侧：地图区域 + 卡片区（弹性分区） -->
         <div class="content-right">
         <section class="map-section" id="mapSection">
             <div class="map-container" id="mapContainer">
@@ -279,14 +273,16 @@
                             <text x="55" y="47" text-anchor="middle" fill="#fff" font-size="7" font-weight="700">2</text>
                             <circle cx="70" cy="48" r="5" fill="#67C23A" stroke="#fff" stroke-width="2"/>
                             <text x="70" y="51" text-anchor="middle" fill="#fff" font-size="7" font-weight="700">3</text>
-                            <circle cx="95" cy="55" r="4" fill="#4A90D9" opacity="0.8"/>
-                            <line x1="95" y1="59" x2="95" y2="68" stroke="#4A90D9" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
-                            <line x1="95" y1="62" x2="90" y2="65" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
-                            <line x1="95" y1="62" x2="100" y2="65" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
-                            <line x1="95" y1="68" x2="91" y2="75" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
-                            <line x1="95" y1="68" x2="99" y2="75" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
-                            <circle cx="100" cy="72" r="6" fill="#67C23A" opacity="0.2"/>
-                            <circle cx="110" cy="78" r="5" fill="#67C23A" opacity="0.15"/>
+                            <path d="M70 48 Q78 50,86 53" fill="none" stroke="#4A90D9" stroke-width="2.5" stroke-dasharray="6 3" stroke-linecap="round" opacity="0.45"/>
+                            <g transform="translate(86,50)">
+                                <rect width="26" height="26" rx="7" fill="#0B1F3A"/>
+                                <path d="M5.4 20.2v-4.6h2.6v-4.4h4v4.4h3.2v-6.2h4.1v10.8" fill="none" stroke="#F7FAFF" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+                                <path d="M5.4 20.2h15.4" stroke="#F7FAFF" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+                                <path d="M8.5 10.8c2.5-.2 3.5-2.1 5.8-2.9s3.3-1.6 4.2-3.5" fill="none" stroke="#2E8BFF" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="2.3 1.7"/>
+                                <circle cx="18.5" cy="5.9" r="1.6" fill="#2E8BFF"/>
+                            </g>
+                            <circle cx="100" cy="84" r="6" fill="#67C23A" opacity="0.18"/>
+                            <circle cx="112" cy="86" r="5" fill="#67C23A" opacity="0.14"/>
                         </svg>
                     </div>
                     <h3 class="placeholder-title">探索城市的漫步路线</h3>
@@ -309,7 +305,6 @@
             </div>
         </section>
 
-        <!-- 路线详情卡片区 — 在右侧区域底部 -->
         <section class="cards-section" id="cardsSection">
             <div class="cards-section-inner">
                 <div class="cards-header">
@@ -345,12 +340,9 @@
                 </div>
             </div>
         </section>
-        </div><!-- /content-right -->
+        </div>
     </main>
 
-    <!-- ============================================================
-    自定义确认弹窗
-    ============================================================ -->
     <div class="confirm-overlay" id="confirmOverlay">
         <div class="confirm-dialog">
             <div class="confirm-icon">
@@ -368,9 +360,6 @@
         </div>
     </div>
 
-    <!-- ============================================================
-    历史记录抽屉 — 从右侧滑入
-    ============================================================ -->
     <div class="drawer-mask" id="drawerMask"></div>
     <div class="drawer" id="historyDrawer">
         <div class="drawer-header">
@@ -389,17 +378,14 @@
                 </svg>
             </button>
         </div>
-        <!-- 搜索框 -->
         <div class="drawer-search" id="drawerSearch">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <input type="text" class="drawer-search-input" id="inputSearchHistory" placeholder="搜索城市、主题或路线名...">
         </div>
         <div class="drawer-body" id="drawerBody">
-            <!-- 加载中 -->
             <div class="drawer-loading" id="drawerLoading">
                 <p>加载中...</p>
             </div>
-            <!-- 空状态 -->
             <div class="drawer-empty" id="drawerEmpty" style="display: none;">
                 <svg class="empty-illustration" width="64" height="64" viewBox="0 0 64 64" fill="none">
                     <rect x="12" y="16" width="40" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"/>
@@ -412,22 +398,15 @@
                 <p class="empty-text">暂无历史路线</p>
                 <p class="empty-sub">生成你的第一条 CityWalk 路线吧</p>
             </div>
-            <!-- 历史列表 -->
             <div class="drawer-list" id="drawerList"></div>
         </div>
     </div>
 
-    <!-- ============================================================
-    Toast 消息提示
-    ============================================================ -->
     <div class="toast" id="toast">
         <span class="toast-icon" id="toastIcon"></span>
         <span class="toast-text" id="toastText"></span>
     </div>
 
-    <!-- ============================================================
-    JavaScript 脚本 — 按模块加载
-    ============================================================ -->
     <script src="js/api.js"></script>
     <script src="js/form.js"></script>
     <script src="js/map.js"></script>

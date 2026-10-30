@@ -1,9 +1,3 @@
-/**
- * 地图模块 v2
- * 封装腾讯地图 JS API GL 的初始化和路线展示
- * 视觉升级：虚线折线 + CSS 类名信息窗 + 标记阴影
- */
-
 const MapModule = (() => {
     let map = null;
     let currentMarkers = [];
@@ -15,9 +9,6 @@ const MapModule = (() => {
     let sdkLoaded = false;
     let highlightedIndex = -1;
 
-    /**
-     * 初始化地图 SDK
-     */
     async function init() {
         if (isInitialized) return;
 
@@ -37,9 +28,6 @@ const MapModule = (() => {
         }
     }
 
-    /**
-     * 动态加载腾讯地图 JavaScript SDK
-     */
     function loadMapSDK() {
         return new Promise((resolve, reject) => {
             if (window.TMap && sdkLoaded) {
@@ -61,9 +49,6 @@ const MapModule = (() => {
         });
     }
 
-    /**
-     * 创建地图实例
-     */
     function createMap(lat, lng, zoom = 12) {
         if (map) {
             map.setCenter(new TMap.LatLng(lat, lng));
@@ -85,7 +70,6 @@ const MapModule = (() => {
             },
         });
 
-        // 点击地图空白处取消高亮
         map.on('click', () => {
             highlightedIndex = -1;
         });
@@ -99,10 +83,6 @@ const MapModule = (() => {
         console.log(`[Map] 地图实例创建成功，中心: (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
     }
 
-    /**
-     * 在地图上展示路线 v3 — 直线连接 + 外部地图导航
-     * 灵活漫步：>1.5km 的段标记为交通衔接（橙色虚线）
-     */
     function displayRoute(waypoints, onMarkerClick) {
         if (!map || !isInitialized) {
             console.warn('[Map] 地图未初始化，无法展示路线');
@@ -120,7 +100,6 @@ const MapModule = (() => {
         const validWaypoints = waypoints.filter(wp => wp.lat != null && wp.lng != null);
         if (validWaypoints.length === 0) return;
 
-        // 1. 放置标记点
         const markerGeometries = validWaypoints.map((wp, i) => ({
             id: `marker-${i}`,
             styleId: 'citywalk-marker',
@@ -139,7 +118,6 @@ const MapModule = (() => {
             geometries: markerGeometries,
         });
 
-        // 数字标签
         const labelLayer = new TMap.MultiLabel({
             map: map,
             styles: {
@@ -160,7 +138,6 @@ const MapModule = (() => {
             const props = evt.geometry?.properties;
             if (props && typeof props.index === 'number') {
                 highlightedIndex = props.index;
-                // 不弹 InfoWindow，改为联动卡片高亮
                 if (onMarkerClickCallback) {
                     onMarkerClickCallback(props.index);
                 }
@@ -169,7 +146,6 @@ const MapModule = (() => {
 
         currentMarkers = [{ markerLayer, labelLayer, geometries: markerGeometries, validWaypoints }];
 
-        // 2. 绘制连线
         const geometries = [];
         for (let i = 0; i < validWaypoints.length - 1; i++) {
             geometries.push({
@@ -197,7 +173,6 @@ const MapModule = (() => {
             geometries: geometries,
         });
 
-        // 3. 自适应视野
         const bounds = new TMap.LatLngBounds();
         validWaypoints.forEach(wp => bounds.extend(new TMap.LatLng(wp.lat, wp.lng)));
         map.fitBounds(bounds, { padding: 60 });
@@ -205,9 +180,6 @@ const MapModule = (() => {
         console.log(`[Map] 路线展示: ${validWaypoints.length} 标记, ${geometries.length} 段连线`);
     }
 
-    /**
-     * 生成圆形标记 SVG v2 — 加阴影
-     */
     function createMarkerSVG(size, color, text) {
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
             <defs>
@@ -221,9 +193,6 @@ const MapModule = (() => {
         return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
     }
 
-    /**
-     * 将地图居中到指定坐标
-     */
     function centerOn(lat, lng, zoom = 14) {
         if (!map || !isInitialized) {
             console.warn('[Map] 地图未初始化，无法居中');
@@ -258,9 +227,6 @@ const MapModule = (() => {
         console.log(`[Map] 定位到用户位置: (${lat}, ${lng})`);
     }
 
-    /**
-     * 用户位置标记 SVG
-     */
     function createUserLocationSVG() {
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
             <circle cx="14" cy="14" r="11" fill="none" stroke="#4A90D9" stroke-width="2" opacity="0.25"/>
@@ -269,17 +235,13 @@ const MapModule = (() => {
         return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
     }
 
-    /**
-     * 高亮指定标记点 v2 — 切换标记样式为橙色
-     */
-    let _hlMarker = null; // 高亮覆盖标记
+    let _hlMarker = null;
 
     function highlightMarker(index) {
         if (!map || index >= currentWaypoints.length) return;
         const wp = currentWaypoints[index];
         if (!wp || !wp.lat || !wp.lng) return;
 
-        // 放大+橙色高亮覆盖标记
         if (_hlMarker) { try { _hlMarker.setMap(null); } catch(e) {} }
         _hlMarker = new TMap.MultiMarker({
             map: map,
@@ -296,9 +258,6 @@ const MapModule = (() => {
         map.setZoom(16);
     }
 
-    /**
-     * 清除地图上的所有路线标记和折线
-     */
     function clearRoute() {
         if (_hlMarker) { try { _hlMarker.setMap(null); } catch(e) {} _hlMarker = null; }
         currentMarkers.forEach(markerGroup => {
@@ -321,9 +280,6 @@ const MapModule = (() => {
         onMarkerClickCallback = null;
     }
 
-    /**
-     * 销毁地图实例
-     */
     function destroy() {
         clearRoute();
         if (map) {
@@ -339,7 +295,6 @@ const MapModule = (() => {
         return div.innerHTML;
     }
 
-    // 公开 API
     return {
         init,
         createMap,
