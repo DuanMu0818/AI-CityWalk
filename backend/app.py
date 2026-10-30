@@ -424,4 +424,4 @@ if __name__ == "__main__":
 
     port = int(os.getenv("PORT", 5000))
     print(f"AI CityWalk 后端启动，访问 http://localhost:{port}")
-    app.run(host="0.0.0.0", port=port, debug=Config.DEBUG)
+    app.run(host="127.0.0.1", port=port, debug=Config.DEBUG)
