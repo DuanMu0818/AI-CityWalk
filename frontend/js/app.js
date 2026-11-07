@@ -55,6 +55,10 @@ const App = (() => {
             const btnCloseRoute = document.getElementById('btnCloseRoute');
             if (btnCloseRoute) btnCloseRoute.addEventListener('click', closeRoute);
 
+            const btnTitleToggle = document.getElementById('btnTitleToggle');
+            if (btnTitleToggle) btnTitleToggle.addEventListener('click', toggleTitleExpanded);
+            window.addEventListener('resize', updateTitleToggle);
+
             document.getElementById('inputCity').addEventListener('input', (e) => {
                 const city = e.target.value.trim();
                 if (city.length >= 2) setNavbarCity(city);
@@ -190,6 +194,27 @@ const App = (() => {
         renderCards(routeData);
     }
 
+    function updateTitleToggle() {
+        const titleEl = document.getElementById('routeNameDisplay');
+        const btn = document.getElementById('btnTitleToggle');
+        if (!titleEl || !btn) return;
+
+        const expanded = titleEl.classList.contains('is-expanded');
+        const overflowing = titleEl.scrollWidth > titleEl.clientWidth + 1;
+        btn.hidden = !(expanded || overflowing);
+    }
+
+    function toggleTitleExpanded() {
+        const titleEl = document.getElementById('routeNameDisplay');
+        const btn = document.getElementById('btnTitleToggle');
+        if (!titleEl || !btn) return;
+
+        const expanded = titleEl.classList.toggle('is-expanded');
+        btn.classList.toggle('is-open', expanded);
+        btn.setAttribute('aria-expanded', String(expanded));
+        btn.setAttribute('aria-label', expanded ? '收起路线名' : '展开完整路线名');
+    }
+
     function closeRoute() {
         if (!currentRouteData) return;
 
@@ -200,7 +225,16 @@ const App = (() => {
         if (cardsSection) cardsSection.classList.remove('visible');
 
         const nameEl = document.getElementById('routeNameDisplay');
-        if (nameEl) nameEl.textContent = '路线详情';
+        if (nameEl) {
+            nameEl.textContent = '路线详情';
+            nameEl.classList.remove('is-expanded');
+        }
+        const titleBtn = document.getElementById('btnTitleToggle');
+        if (titleBtn) {
+            titleBtn.classList.remove('is-open');
+            titleBtn.setAttribute('aria-expanded', 'false');
+            titleBtn.hidden = true;
+        }
         const summaryEl = document.getElementById('routeSummaryDisplay');
         if (summaryEl) summaryEl.textContent = '';
 
@@ -222,6 +256,15 @@ const App = (() => {
         if (routeData.area) title += ` · ${routeData.area}`;
         routeNameDisplay.textContent = title;
         routeSummaryDisplay.textContent = routeData.summary || '';
+
+        // 新路线渲染后复位标题展开状态，并重新判断是否需要“展开”箭头
+        const titleBtn = document.getElementById('btnTitleToggle');
+        routeNameDisplay.classList.remove('is-expanded');
+        if (titleBtn) {
+            titleBtn.classList.remove('is-open');
+            titleBtn.setAttribute('aria-expanded', 'false');
+        }
+        requestAnimationFrame(updateTitleToggle);
 
         const waypoints = routeData.waypoints || [];
 

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI CityWalk — 智能城市漫步路线规划</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="css/style.css?v=20261107c">
+    <link rel="stylesheet" href="css/style.css?v=20261107d">
 </head>
 <body>
     <nav class="navbar" id="navbar">
@@ -309,7 +309,17 @@
             <div class="cards-section-inner">
                 <div class="cards-header">
                     <div class="cards-header-left">
-                        <h2 class="cards-title" id="routeNameDisplay">路线详情</h2>
+                        <div class="cards-title-row">
+                            <h2 class="cards-title" id="routeNameDisplay">路线详情</h2>
+                            <button class="btn-title-toggle" id="btnTitleToggle" type="button"
+                                    aria-expanded="false" aria-label="展开完整路线名"
+                                    title="展开 / 收起完整路线名" hidden>
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                    <polyline points="2,4 6,8 10,4" stroke="currentColor"
+                                              stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
                         <p class="cards-summary" id="routeSummaryDisplay"></p>
                     </div>
                     <div class="cards-header-actions">

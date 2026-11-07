@@ -1696,6 +1696,52 @@ body {
     outline-offset: 2px;
 }
 
+.cards-title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.cards-title-row .cards-title {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.btn-title-toggle {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: transform var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-title-toggle:hover {
+    color: var(--color-primary);
+    background: rgba(74, 144, 217, 0.1);
+}
+
+.btn-title-toggle[hidden] { display: none; }
+
+.btn-title-toggle.is-open { transform: rotate(180deg); }
+
+.cards-title.is-expanded {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    white-space: normal;
+    overflow: hidden;
+}
+
 .placeholder-example-btn {
     margin-top: var(--space-md);
     padding: 8px 20px;
@@ -2016,6 +2062,35 @@ body {
 
     .cards-stats {
         width: 100%;
+    }
+
+    /* 手机上：标题一行、按钮靠右，简介与统计折到下面；标题可展开两行 */
+    .cards-header {
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+    }
+
+    .cards-header-left {
+        flex: 1 1 0%;
+        min-width: 0;
+        max-width: none;
+    }
+
+    .cards-header-actions {
+        display: contents;
+    }
+
+    .cards-actions-row {
+        order: 2;
+        flex: 0 0 auto;
+        margin-left: auto;
+    }
+
+    .cards-stats {
+        order: 3;
+        flex: 0 0 100%;
+        width: 100%;
+        justify-content: flex-start;
     }
 
     .cards-container {
