@@ -2019,13 +2019,16 @@ body {
     }
 
     .cards-container {
-        flex-direction: row;
-        overflow-x: auto;
+        flex-direction: column;
+        overflow-x: visible;
+        overflow-y: auto;
     }
 
     .route-card {
-        min-width: 250px;
-        max-width: 270px;
+        flex: 0 0 auto;
+        width: 100%;
+        min-width: 0;
+        max-width: none;
     }
 
     .cards-scroll-btn {
