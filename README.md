@@ -75,13 +75,54 @@ python app.py
 
 ## 部署
 
-在线演示部署在 [Railway](https://railway.app/)。自行部署到公网时请注意以下几点：
+线上部署在**自有服务器**上，链路是：`浏览器 --HTTPS:443--> nginx（TLS 终止）--HTTP:5000--> gunicorn + Flask`。
+四个步骤：
 
-- 密钥通过平台的环境变量配置，不要提交 `.env`，并确保其已加入 `.gitignore`
-- 腾讯地图的 JavaScript API Key 会暴露在浏览器中，请在腾讯位置服务控制台为其配置域名白名单，避免被他人盗用额度；WebService Key 仅在后端使用，不应下发到前端
-- 路线生成会调用 DeepSeek 与腾讯地图的付费或限额接口，公网环境建议为生成接口添加频率限制，并在服务商后台设置用量告警
-- SQLite 数据存放在本地文件中，容器类平台重新部署后文件系统可能被重置，需要持久化历史记录时请挂载持久卷
-- 生产环境建议使用 gunicorn 等 WSGI 服务器，而不是 Flask 自带的开发服务器
+1. **申请域名**：注册一个域名（演示站点用的是 `aicitywalk.dpdns.org`）。
+2. **托管 DNS**：把域名的 NS 交给 Cloudflare，在 DNS 面板添加一条 `A` 记录，指向服务器的公网 IPv4。
+3. **申请证书**：在服务器上安装 certbot，执行 `certbot --nginx -d aicitywalk.dpdns.org`，由 Let's Encrypt 签发证书；证书 90 天有效，certbot 的定时任务会自动续期。
+4. **反向代理**：nginx 监听 80/443，完成 TLS 握手后把请求转发到后端只开 HTTP 的端口（`127.0.0.1:5000`）；后端用 gunicorn 启动，交给 systemd 托管。
+
+nginx 站点配置参考：
+
+```nginx
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name aicitywalk.dpdns.org;
+
+    ssl_certificate     /etc/letsencrypt/live/aicitywalk.dpdns.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/aicitywalk.dpdns.org/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 75s;   # 路线生成最长 60s，留出余量
+    }
+}
+
+server {
+    listen 80;
+    server_name aicitywalk.dpdns.org;
+    return 301 https://$host$request_uri;
+}
+```
+
+```bash
+# 后端
+pip install -r requirements.txt
+gunicorn -w 2 -b 127.0.0.1:5000 app:app   # 工作目录 backend/
+```
+
+其余注意事项：
+
+- 密钥写在服务器的 `backend/.env`（`DEEPSEEK_API_KEY` / `TENCENT_MAP_KEY`），不要提交；`.gitignore` 已忽略
+- 腾讯地图的 JavaScript API Key 会暴露在浏览器中，请在腾讯位置服务控制台为其配置域名白名单；WebService Key 仅在后端使用，不应下发到前端
+- 生成接口已内置限流（每 IP 每 60 秒 5 次），公网环境建议再在服务商后台设置用量告警
+- SQLite 数据存放在服务器本地文件中（已启用 WAL 模式），重新部署前请备份
 
 ## 使用
 
