@@ -100,6 +100,8 @@ const MapModule = (() => {
         const validWaypoints = waypoints.filter(wp => wp.lat != null && wp.lng != null);
         if (validWaypoints.length === 0) return;
 
+        setPlaceholder(false);
+
         const markerGeometries = validWaypoints.map((wp, i) => ({
             id: `marker-${i}`,
             styleId: 'citywalk-marker',
@@ -256,6 +258,13 @@ const MapModule = (() => {
 
         map.setCenter(new TMap.LatLng(wp.lat, wp.lng));
         map.setZoom(16);
+    }
+
+    function setPlaceholder(visible) {
+        const placeholder = document.getElementById('mapPlaceholder');
+        if (placeholder) {
+            placeholder.style.display = visible ? '' : 'none';
+        }
     }
 
     function clearRoute() {

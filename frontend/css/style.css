@@ -1664,6 +1664,38 @@ body {
     color: var(--color-primary);
 }
 
+.cards-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-close-route {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-btn);
+    background: var(--color-card);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-close-route:hover {
+    border-color: var(--color-error);
+    color: var(--color-error);
+    background: rgba(245, 108, 108, 0.08);
+}
+
+.btn-close-route:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
 .placeholder-example-btn {
     margin-top: var(--space-md);
     padding: 8px 20px;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚶 AI CityWalk — 智能城市漫步路线规划</title>
+    <title>AI CityWalk — 智能城市漫步路线规划</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -313,10 +313,19 @@
                         <p class="cards-summary" id="routeSummaryDisplay"></p>
                     </div>
                     <div class="cards-header-actions">
-                        <button class="btn-share" id="btnShare" title="复制路线到剪贴板">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4" y="2" width="8" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M2 4v8a1 1 0 001 1h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-                            分享
-                        </button>
+                        <div class="cards-actions-row">
+                            <button class="btn-share" id="btnShare" title="复制路线到剪贴板">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4" y="2" width="8" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M2 4v8a1 1 0 001 1h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                                分享
+                            </button>
+                            <button class="btn-close-route" id="btnCloseRoute" type="button"
+                                    title="关闭这条路线" aria-label="关闭这条路线">
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                    <line x1="2.5" y1="2.5" x2="9.5" y2="9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                    <line x1="9.5" y1="2.5" x2="2.5" y2="9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>
                         <div class="cards-stats" id="cardsStats">
                             <span class="stat-item">
                                 <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="5" cy="4" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="11" cy="10" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="13" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>

@@ -52,6 +52,9 @@ const App = (() => {
             const btnShare = document.getElementById('btnShare');
             if (btnShare) btnShare.addEventListener('click', shareRoute);
 
+            const btnCloseRoute = document.getElementById('btnCloseRoute');
+            if (btnCloseRoute) btnCloseRoute.addEventListener('click', closeRoute);
+
             document.getElementById('inputCity').addEventListener('input', (e) => {
                 const city = e.target.value.trim();
                 if (city.length >= 2) setNavbarCity(city);
@@ -185,6 +188,26 @@ const App = (() => {
         const waypoints = routeData.waypoints || [];
         MapModule.displayRoute(waypoints, onMapMarkerClick);
         renderCards(routeData);
+    }
+
+    function closeRoute() {
+        if (!currentRouteData) return;
+
+        currentRouteData = null;
+        MapModule.clearRoute();
+
+        const cardsSection = document.getElementById('cardsSection');
+        if (cardsSection) cardsSection.classList.remove('visible');
+
+        const nameEl = document.getElementById('routeNameDisplay');
+        if (nameEl) nameEl.textContent = '路线详情';
+        const summaryEl = document.getElementById('routeSummaryDisplay');
+        if (summaryEl) summaryEl.textContent = '';
+
+        const cardsContainer = document.getElementById('cardsContainer');
+        if (cardsContainer) cardsContainer.innerHTML = '';
+
+        showToast('已关闭当前路线', 'success');
     }
 
     function renderCards(routeData) {
